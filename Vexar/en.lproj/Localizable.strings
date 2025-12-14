@@ -1,0 +1,69 @@
+/* English Localization for Vexar */
+
+/* App */
+"app_name" = "VEXAR";
+"version" = "v1.0";
+
+/* Connection Status */
+"status_connected" = "Connected";
+"status_disconnected" = "Disconnected";
+"status_connecting" = "Connecting...";
+"port_label" = "Port: %@";
+
+/* Buttons */
+"connect" = "Connect";
+"disconnect" = "Disconnect";
+"launch_discord" = "Launch Discord";
+"settings" = "Settings";
+"logs" = "Logs";
+"quit" = "Quit";
+
+/* Settings */
+"settings_title" = "Settings";
+"proxy_port" = "Proxy Port";
+"apply" = "Apply";
+"disconnect_to_change" = "Disconnect to change port";
+"launch_at_login" = "Launch at Login";
+"launch_at_login_desc" = "Start Vexar automatically when you log in";
+"version_label" = "Version";
+"spoofdpi_status" = "SpoofDPI";
+"installed" = "Installed ✓";
+"not_found" = "Not Found";
+"invalid_port" = "Invalid Port";
+"invalid_port_message" = "Please enter a valid port number (1024-65535)";
+"ok" = "OK";
+
+/* Logs */
+"logs_title" = "Process Logs";
+"auto_scroll" = "Auto-scroll";
+"lines_count" = "%d lines";
+"copy" = "Copy";
+"clear" = "Clear";
+"no_logs" = "No logs yet";
+"no_logs_desc" = "Connect to SpoofDPI to see process output";
+
+/* Onboarding */
+"welcome_title" = "Welcome to Vexar";
+"welcome_desc" = "Vexar needs SpoofDPI to route Discord traffic.";
+"spoofdpi_not_found" = "SpoofDPI Not Found";
+"install_spoofdpi" = "Install SpoofDPI";
+"skip" = "Skip";
+"cancel" = "Cancel";
+"installing_spoofdpi" = "Installing SpoofDPI...";
+"installing_homebrew" = "Installing Homebrew...";
+"install_complete" = "Installation complete!";
+"homebrew_not_found" = "Homebrew is required. Please install it first.";
+"install_homebrew_terminal" = "Install Homebrew in Terminal";
+"refresh_status" = "Refresh Status";
+"discord_launch_info" = "You can now launch Discord from anywhere.";
+"homebrew_installed" = "Homebrew installed successfully!";
+"homebrew_install_failed" = "Failed to install Homebrew";
+"install_failed" = "Installation failed";
+"try_again" = "Try Again";
+"continue" = "Continue";
+
+/* Log Messages */
+"log_connected" = "✅ Connected on port %d";
+"log_disconnected" = "🔌 Disconnected";
+"log_discord_launched" = "🎮 Launched Discord with proxy port %d";
+"log_connection_failed" = "❌ Connection failed: %@";

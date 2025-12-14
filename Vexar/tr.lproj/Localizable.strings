@@ -1,0 +1,69 @@
+/* Turkish Localization for Vexar */
+
+/* App */
+"app_name" = "VEXAR";
+"version" = "v1.0";
+
+/* Connection Status */
+"status_connected" = "Bağlandı";
+"status_disconnected" = "Bağlantı Kesildi";
+"status_connecting" = "Bağlanıyor...";
+"port_label" = "Port: %@";
+
+/* Buttons */
+"connect" = "Bağlan";
+"disconnect" = "Bağlantıyı Kes";
+"launch_discord" = "Discord'u Başlat";
+"settings" = "Ayarlar";
+"logs" = "Loglar";
+"quit" = "Çıkış";
+
+/* Settings */
+"settings_title" = "Ayarlar";
+"proxy_port" = "Proxy Portu";
+"apply" = "Uygula";
+"disconnect_to_change" = "Portu değiştirmek için bağlantıyı kesin";
+"launch_at_login" = "Girişte Başlat";
+"launch_at_login_desc" = "Mac açıldığında Vexar'ı otomatik başlat";
+"version_label" = "Sürüm";
+"spoofdpi_status" = "SpoofDPI";
+"installed" = "Kurulu ✓";
+"not_found" = "Bulunamadı";
+"invalid_port" = "Geçersiz Port";
+"invalid_port_message" = "Lütfen geçerli bir port numarası girin (1024-65535)";
+"ok" = "Tamam";
+
+/* Logs */
+"logs_title" = "İşlem Logları";
+"auto_scroll" = "Otomatik Kaydır";
+"lines_count" = "%d satır";
+"copy" = "Kopyala";
+"clear" = "Temizle";
+"no_logs" = "Henüz log yok";
+"no_logs_desc" = "SpoofDPI çıktısını görmek için bağlanın";
+
+/* Onboarding */
+"welcome_title" = "Vexar'a Hoş Geldiniz";
+"welcome_desc" = "Vexar, Discord trafiğini yönlendirmek için SpoofDPI'ya ihtiyaç duyar.";
+"spoofdpi_not_found" = "SpoofDPI Bulunamadı";
+"install_spoofdpi" = "SpoofDPI Kur";
+"skip" = "Atla";
+"cancel" = "İptal";
+"installing_spoofdpi" = "SpoofDPI kuruluyor...";
+"installing_homebrew" = "Homebrew kuruluyor...";
+"install_complete" = "Kurulum tamamlandı!";
+"homebrew_not_found" = "Homebrew gerekli. Lütfen önce kurun.";
+"install_homebrew_terminal" = "Terminal'de Homebrew Kur";
+"refresh_status" = "Durumu Yenile";
+"discord_launch_info" = "Discord'u artık dilediğiniz yerden açabilirsiniz.";
+"homebrew_installed" = "Homebrew başarıyla kuruldu!";
+"homebrew_install_failed" = "Homebrew kurulumu başarısız";
+"install_failed" = "Kurulum başarısız";
+"try_again" = "Tekrar Dene";
+"continue" = "Devam Et";
+
+/* Log Messages */
+"log_connected" = "✅ Port %d üzerinden bağlandı";
+"log_disconnected" = "🔌 Bağlantı kesildi";
+"log_discord_launched" = "🎮 Discord proxy port %d ile başlatıldı";
+"log_connection_failed" = "❌ Bağlantı hatası: %@";
