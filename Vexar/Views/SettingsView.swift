@@ -1,291 +1,270 @@
 import SwiftUI
 import ServiceManagement
 
-/// Settings view for Launch at Login with Premium Visuals
 struct SettingsView: View {
     @EnvironmentObject var appState: AppState
+    @EnvironmentObject var homebrewManager: HomebrewManager
     @Environment(\.dismiss) private var dismiss
     
-    // Animation states
-    @State private var appearAnimation = false
-    @State private var hoverClose = false
-    @State private var animateBg = false
+    // Dynamic Height State
+    @State private var contentHeight: CGFloat = 430
     
-    // Dynamic Height
-    @State private var contentHeight: CGFloat = 430 // Default fallback
+    // Animation
+    @State private var appearAnimation = false
     
     var body: some View {
         ZStack {
-            // Animated Background
-            ZStack {
-                Color.vexarBackground.ignoresSafeArea()
-                
-                // Animated gradient blobs
-                GeometryReader { proxy in
-                    Circle()
-                        .fill(Color.vexarBlue.opacity(0.15))
-                        .frame(width: 200, height: 200)
-                        .blur(radius: 60)
-                        .offset(x: animateBg ? -50 : 50, y: animateBg ? -50 : 50)
-                        .animation(.easeInOut(duration: 5).repeatForever(autoreverses: true), value: animateBg)
-                    
-                    Circle()
-                        .fill(Color.vexarOrange.opacity(0.1))
-                        .frame(width: 250, height: 250)
-                        .blur(radius: 70)
-                        .offset(x: proxy.size.width - (animateBg ? 100 : 200), y: proxy.size.height - (animateBg ? 50 : 150))
-                        .animation(.easeInOut(duration: 7).repeatForever(autoreverses: true), value: animateBg)
-                }
-            }
-            .ignoresSafeArea()
+            // 1. Shared Living Background
+            AnimatedMeshBackground(statusColor: .vexarBlue)
+            
+            // 2. Glass Overlay
+            Rectangle()
+                .fill(.ultraThinMaterial)
+                .opacity(0.8)
+                .ignoresSafeArea()
             
             VStack(spacing: 0) {
+
+
                 // Header
                 HStack {
-                    HStack(spacing: 8) {
-                        Image(systemName: "gearshape.fill")
-                            .font(.system(size: 16))
-                            .foregroundStyle(
-                                LinearGradient(colors: [.vexarBlue, .vexarGreen], startPoint: .topLeading, endPoint: .bottomTrailing)
-                            )
-                            .rotationEffect(.degrees(appearAnimation ? 360 : 0))
-                            .animation(.spring(response: 0.8, dampingFraction: 0.6).delay(0.1), value: appearAnimation)
-                        
-                        Text(String(localized: "settings_title"))
-                            .font(.system(size: 18, weight: .bold, design: .rounded))
-                            .foregroundStyle(.white)
-                            .shadow(color: .white.opacity(0.2), radius: 5)
-                    }
+                    Image(systemName: "gearshape.fill")
+                        .font(.system(size: 18))
+                        .foregroundColor(.white)
+                        .rotationEffect(.degrees(appearAnimation ? 360 : 0))
+                        .animation(.spring(response: 1, dampingFraction: 0.7), value: appearAnimation)
+                    
+                    Text("AYARLAR")
+                        .font(.system(size: 16, weight: .heavy, design: .default)) // Fixed font design
+                        .tracking(1)
+                        .foregroundColor(.white)
                     
                     Spacer()
                     
-                    Button(action: { dismiss() }) {
-                        Image(systemName: "chevron.left")
-                            .font(.system(size: 14, weight: .bold))
-                            .foregroundColor(hoverClose ? .white : .secondary)
-                            .padding(8)
-                            .background(
-                                Circle()
-                                    .fill(hoverClose ? Color.white.opacity(0.1) : Color.clear)
-                            )
-                            .overlay(
-                                Circle()
-                                    .stroke(Color.white.opacity(0.1), lineWidth: 1)
-                            )
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 20))
+                            .foregroundColor(.white.opacity(0.6))
                     }
                     .buttonStyle(.plain)
-                    .onHover { hoverClose = $0 }
                 }
                 .padding(20)
-                .background(.ultraThinMaterial)
-                .overlay(
-                    Rectangle()
-                        .fill(
-                            LinearGradient(
-                                colors: [.vexarBlue.opacity(0.3), .vexarOrange.opacity(0.3)],
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
-                        )
-                        .frame(height: 1),
-                    alignment: .bottom
-                )
+                .background(.ultraThinMaterial) // Header glass
                 
                 ScrollView {
-                    VStack(spacing: 20) {
+                    VStack(spacing: 24) {
                         
-                        // Launch at Login card
-                        settingsCard(delay: 0.1) {
-                            Toggle(isOn: $appState.launchAtLogin) {
-                                HStack(spacing: 16) {
-                                    ZStack {
-                                        Circle()
-                                            .fill(
-                                                LinearGradient(
-                                                    colors: [Color.vexarBlue.opacity(0.2), Color.vexarBlue.opacity(0.05)],
-                                                    startPoint: .topLeading,
-                                                    endPoint: .bottomTrailing
-                                                )
-                                            )
-                                            .frame(width: 44, height: 44)
-                                            .overlay(
-                                                Circle()
-                                                    .stroke(Color.vexarBlue.opacity(0.3), lineWidth: 1)
-                                            )
-                                            .shadow(color: .vexarBlue.opacity(0.2), radius: 8)
-                                        
-                                        Image(systemName: "power")
-                                            .font(.system(size: 20, weight: .semibold))
-                                            .foregroundColor(.vexarBlue)
-                                            .shadow(color: .vexarBlue.opacity(0.5), radius: 5)
-                                    }
-                                    
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        Text(String(localized: "launch_at_login"))
-                                            .font(.system(size: 15, weight: .semibold))
-                                            .foregroundColor(.white)
-                                        Text(String(localized: "launch_at_login_desc"))
-                                            .font(.system(size: 12))
-                                            .foregroundColor(.secondary)
-                                    }
+                        // Launch at Login Section
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("GENEL")
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundColor(.white.opacity(0.5))
+                            
+                            HStack {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("Başlangıçta Çalıştır")
+                                        .font(.system(size: 14, weight: .medium))
+                                        .foregroundColor(.white)
+                                    Text("Bilgisayar açıldığında Vexar otomatik başlar.")
+                                        .font(.system(size: 12))
+                                        .foregroundColor(.white.opacity(0.6))
                                 }
-                            }
-                            .toggleStyle(SwitchToggleStyle(tint: .vexarBlue))
-                        }
-                        
-                        // App info card
-                        settingsCard(delay: 0.2) {
-                            VStack(spacing: 16) {
-                                infoRow(
-                                    icon: "info.circle.fill",
-                                    color: .vexarBlue,
-                                    title: String(localized: "version_label"),
-                                    value: "1.0.0"
-                                )
+                                Spacer()
                                 
-                                Divider()
-                                    .background(
-                                        LinearGradient(
-                                            colors: [.clear, .white.opacity(0.1), .clear],
-                                            startPoint: .leading,
-                                            endPoint: .trailing
-                                        )
-                                    )
+                                Spacer()
                                 
-                                HStack {
-                                    HStack(spacing: 8) {
-                                        Image(systemName: "server.rack")
-                                            .foregroundColor(.secondary)
-                                            .font(.system(size: 12))
-                                        
-                                        Text(String(localized: "spoofdpi_status"))
-                                            .font(.system(size: 13))
-                                            .foregroundColor(.secondary)
+                                // Sliding Toggle
+                                Button {
+                                    withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                                        appState.launchAtLogin.toggle()
                                     }
-                                    
-                                    Spacer()
-                                    
-                                    HStack(spacing: 8) {
-                                        Circle()
-                                            .fill(spoofDPIInstalled ? Color.vexarGreen : Color.vexarOrange)
-                                            .frame(width: 8, height: 8)
-                                            .shadow(color: (spoofDPIInstalled ? Color.vexarGreen : Color.vexarOrange).opacity(0.6), radius: 4)
+                                } label: {
+                                    ZStack {
+                                        // Track
+                                        Capsule()
+                                            .fill(Color.black.opacity(0.4))
+                                            .frame(width: 130, height: 36)
+                                            .overlay(
+                                                Capsule().stroke(Color.white.opacity(0.1), lineWidth: 1)
+                                            )
                                         
-                                        Text(spoofDPIInstalled 
-                                            ? String(localized: "installed") 
-                                            : String(localized: "not_found"))
-                                            .font(.system(size: 12, weight: .bold))
-                                            .padding(.horizontal, 8)
-                                            .padding(.vertical, 4)
+                                        // Sliding Knob Container
+                                        HStack {
+                                            if appState.launchAtLogin {
+                                                Spacer()
+                                            }
+                                            
+                                            // Knob
+                                            HStack(spacing: 6) {
+                                                Image(systemName: appState.launchAtLogin ? "checkmark" : "power")
+                                                    .font(.system(size: 12, weight: .bold))
+                                                Text(appState.launchAtLogin ? "AÇIK" : "KAPALI")
+                                                    .font(.system(size: 10, weight: .bold, design: .monospaced))
+                                            }
+                                            .foregroundColor(appState.launchAtLogin ? .white : .white.opacity(0.6))
+                                            .padding(.horizontal, 12)
+                                            .padding(.vertical, 6)
                                             .background(
                                                 Capsule()
-                                                    .fill((spoofDPIInstalled ? Color.vexarGreen : Color.vexarOrange).opacity(0.15))
+                                                    .fill(
+                                                        appState.launchAtLogin ?
+                                                        LinearGradient(colors: [.vexarGreen, .vexarGreen.opacity(0.8)], startPoint: .top, endPoint: .bottom) :
+                                                            LinearGradient(colors: [.gray.opacity(0.3), .gray.opacity(0.1)], startPoint: .top, endPoint: .bottom)
+                                                    )
+                                                    .shadow(color: appState.launchAtLogin ? .vexarGreen.opacity(0.4) : .black.opacity(0.3), radius: 5)
+                                                    .overlay(
+                                                        Capsule().stroke(Color.white.opacity(0.2), lineWidth: 1)
+                                                    )
                                             )
-                                            .foregroundColor(spoofDPIInstalled ? .vexarGreen : .vexarOrange)
+                                            .frame(height: 32)
+                                            
+                                            if !appState.launchAtLogin {
+                                                Spacer()
+                                            }
+                                        }
+                                        .padding(.horizontal, 2)
+                                        .frame(width: 130)
                                     }
                                 }
+                                .buttonStyle(.plain)
                             }
+                            .padding(16)
+                            .background(Color.black.opacity(0.2))
+                            .cornerRadius(12)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(.white.opacity(0.1), lineWidth: 1)
+                            )
                         }
+                        
+                        // App Info Section
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("BİLGİ")
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundColor(.white.opacity(0.5))
+                            
+                            VStack(spacing: 0) {
+                                // Version
+                                HStack {
+                                    Image(systemName: "info.circle")
+                                        .foregroundColor(.vexarBlue)
+                                    Text("Versiyon")
+                                        .font(.system(size: 13))
+                                        .foregroundColor(.white.opacity(0.8))
+                                    Spacer()
+                                    Text("1.0.0 (Beta)")
+                                        .font(.system(size: 13, weight: .bold, design: .monospaced))
+                                        .foregroundColor(.white.opacity(0.6))
+                                }
+                                .padding(16)
+                                
+                                Divider().background(.white.opacity(0.1))
+                                
+                                // SpoofDPI Status
+                                HStack {
+                                    Image(systemName: "server.rack")
+                                        .foregroundColor(.vexarGreen)
+                                    Text("Motor Durumu")
+                                        .font(.system(size: 13))
+                                        .foregroundColor(.white.opacity(0.8))
+                                    Spacer()
+                                    
+                                    HStack(spacing: 6) {
+                                        Circle()
+                                            .fill(homebrewManager.isSpoofDPIInstalled ? Color.vexarGreen : Color.vexarOrange)
+                                            .frame(width: 6, height: 6)
+                                        Text(homebrewManager.isSpoofDPIInstalled ? "YÜKLÜ" : "YOK")
+                                            .font(.system(size: 10, weight: .bold))
+                                            .foregroundColor(homebrewManager.isSpoofDPIInstalled ? .vexarGreen : .vexarOrange)
+                                    }
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 4)
+                                    .background(Color.black.opacity(0.3))
+                                    .cornerRadius(6)
+                                }
+                                .padding(16)
+                            }
+                            .background(Color.black.opacity(0.2))
+                            .cornerRadius(12)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(.white.opacity(0.1), lineWidth: 1)
+                            )
+                        }
+                        
+                        // Branding Section
+                        VStack(spacing: 16) {
+                            HStack(spacing: 12) {
+                                Image(systemName: "person.crop.circle.fill")
+                                    .resizable()
+                                    .frame(width: 32, height: 32)
+                                    .foregroundColor(.white.opacity(0.8))
+                                
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Geliştirici")
+                                        .font(.system(size: 10, weight: .bold))
+                                        .foregroundColor(.white.opacity(0.4))
+                                    Text("ConsolAktif")
+                                        .font(.system(size: 16, weight: .bold))
+                                        .foregroundColor(.white)
+                                }
+                                Spacer()
+                            }
+                            
+                            Link(destination: URL(string: "https://www.youtube.com/@ConsolAktif")!) {
+                                HStack {
+                                    Image(systemName: "play.rectangle.fill")
+                                    Text("YouTube'da Takip Et")
+                                        .font(.system(size: 13, weight: .bold))
+                                }
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 12)
+                                .background(
+                                    LinearGradient(colors: [.red.opacity(0.9), .red.opacity(0.6)], startPoint: .top, endPoint: .bottom)
+                                )
+                                .cornerRadius(12)
+                                .shadow(color: .red.opacity(0.4), radius: 8, y: 4)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                        .padding(20)
+                        .background(
+                            ZStack {
+                                Color.black.opacity(0.3)
+                                RadialGradient(colors: [.vexarBlue.opacity(0.1), .clear], center: .center, startRadius: 0, endRadius: 100)
+                            }
+                        )
+                        .cornerRadius(16)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 16)
+                                .stroke(LinearGradient(colors: [.white.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom), lineWidth: 1)
+                        )
                     }
-                    .padding(20)
                     .padding(20)
                     .readHeight { height in
+                        // Reuse resizing logic
                         let newHeight = height + 80
                         if abs(contentHeight - newHeight) > 1 {
-                            // Debounce to prevent crash during transition
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                withAnimation {
-                                    contentHeight = newHeight
-                                }
-                            }
+                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                 withAnimation { contentHeight = newHeight }
+                             }
                         }
-                    }
                     }
                 }
             }
-
-        // Emit height preference instead of resizing self
+        }
+        // Height Preference Emit
         .background(GeometryReader { _ in
             Color.clear.preference(key: ViewHeightKey.self, value: min(contentHeight, 600))
         })
-        .navigationBarBackButtonHidden(true)
         .preferredColorScheme(.dark)
         .onAppear {
-            withAnimation {
-                appearAnimation = true
-                animateBg = true
-            }
+            appearAnimation = true
         }
     }
     
-    // MARK: - Components
-    
-    private func settingsCard<Content: View>(delay: Double, @ViewBuilder content: () -> Content) -> some View {
-        VStack(alignment: .leading) {
-            content()
-        }
-        .padding(20)
-        .background(
-            RoundedRectangle(cornerRadius: 20)
-                .fill(.ultraThinMaterial)
-                .opacity(0.8)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(
-                    LinearGradient(
-                        colors: [.white.opacity(0.1), .white.opacity(0.02)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ),
-                    lineWidth: 1
-                )
-        )
-        .shadow(color: .black.opacity(0.2), radius: 15, y: 5)
-        .offset(y: appearAnimation ? 0 : 20)
-        .opacity(appearAnimation ? 1 : 0)
-        .animation(.spring(response: 0.6, dampingFraction: 0.7).delay(delay), value: appearAnimation)
-    }
-    
-    private func infoRow(icon: String, color: Color, title: String, value: String) -> some View {
-        HStack {
-            Image(systemName: icon)
-                .foregroundColor(color)
-                .font(.system(size: 14))
-                .shadow(color: color.opacity(0.4), radius: 4)
-            
-            Text(title)
-                .font(.system(size: 13))
-                .foregroundColor(.secondary)
-            
-            Spacer()
-            
-            Text(value)
-                .font(.system(size: 13, weight: .semibold, design: .monospaced))
-                .foregroundColor(.white)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-                .background(
-                    RoundedRectangle(cornerRadius: 6)
-                        .fill(Color.white.opacity(0.05))
-                )
-        }
-    }
-    
-    // MARK: - Helpers
-    
-    private var spoofDPIInstalled: Bool {
-        let paths = [
-            "/opt/homebrew/bin/spoofdpi",
-            "/usr/local/bin/spoofdpi",
-            Bundle.main.path(forResource: "spoofdpi", ofType: nil)
-        ].compactMap { $0 }
-        
-        return paths.contains { FileManager.default.isExecutableFile(atPath: $0) }
-    }
-}
 
-#Preview {
-    SettingsView()
-        .environmentObject(AppState())
 }
