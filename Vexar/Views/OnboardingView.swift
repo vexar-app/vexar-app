@@ -1,6 +1,5 @@
 import SwiftUI
 
-/// Onboarding view for first-time setup with Premium Visuals
 struct OnboardingView: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var homebrewManager: HomebrewManager
@@ -8,62 +7,40 @@ struct OnboardingView: View {
     
     @State private var showError = false
     @State private var isDiscordInstalled = false
-    
-    // Animations
     @State private var appearAnimation = false
     @State private var animateBg = false
     
     var body: some View {
         ZStack {
-            // Animated Background
-            ZStack {
-                Color.vexarBackground.ignoresSafeArea()
-                
-                // Animated gradient blobs
-                GeometryReader { proxy in
-                    Circle()
-                        .fill(Color.vexarBlue.opacity(0.15))
-                        .frame(width: 300, height: 300)
-                        .blur(radius: 80)
-                        .offset(x: animateBg ? -50 : 150, y: animateBg ? -50 : 50)
-                        .animation(.easeInOut(duration: 6).repeatForever(autoreverses: true), value: animateBg)
-                    
-                    Circle()
-                        .fill(Color.vexarOrange.opacity(0.1))
-                        .frame(width: 250, height: 250)
-                        .blur(radius: 70)
-                        .offset(x: proxy.size.width - (animateBg ? 100 : 250), y: proxy.size.height - (animateBg ? 50 : 250))
-                        .animation(.easeInOut(duration: 8).repeatForever(autoreverses: true), value: animateBg)
-                }
-            }
-            .ignoresSafeArea()
+            AnimatedMeshBackground(statusColor: Color.vexarBlue)
+            
+            Rectangle()
+                .fill(.ultraThinMaterial)
+                .opacity(0.85)
+                .ignoresSafeArea()
             
             ScrollView(showsIndicators: false) {
-                VStack(spacing: 30) {
-                    // Logo and title
+                VStack(spacing: 32) {
                     headerSection
                         .offset(y: appearAnimation ? 0 : 30)
                         .opacity(appearAnimation ? 1 : 0)
                         .animation(.spring(response: 0.6, dampingFraction: 0.7).delay(0.1), value: appearAnimation)
                     
-                    // Status cards
                     statusSection
                         .offset(y: appearAnimation ? 0 : 40)
                         .opacity(appearAnimation ? 1 : 0)
                         .animation(.spring(response: 0.6, dampingFraction: 0.7).delay(0.2), value: appearAnimation)
                     
-                    // Action button
                     actionSection
                         .offset(y: appearAnimation ? 0 : 50)
                         .opacity(appearAnimation ? 1 : 0)
                         .animation(.spring(response: 0.6, dampingFraction: 0.7).delay(0.3), value: appearAnimation)
                 }
-                .padding(.horizontal, 28)
-                .padding(.vertical, 30)
+                .padding(.horizontal, 32)
+                .padding(.vertical, 40)
             }
         }
-        .frame(width: 380, height: 550)
-        .background(Color.vexarBackground)
+        .frame(width: 400, height: 600)
         .preferredColorScheme(.dark)
         .alert(String(localized: "install_failed"), isPresented: $showError) {
             Button(String(localized: "ok"), role: .cancel) {}
@@ -81,95 +58,94 @@ struct OnboardingView: View {
         }
     }
     
-    // MARK: - Header Section
-    
     private var headerSection: some View {
-        VStack(spacing: 20) {
-            // Logo with glow
+        VStack(spacing: 24) {
             ZStack {
-                // Rotating outer ring
                 Circle()
                     .strokeBorder(
-                        AngularGradient(colors: [.vexarBlue.opacity(0.5), .clear, .vexarBlue.opacity(0.5), .clear], center: .center),
+                        AngularGradient(colors: [Color.vexarBlue.opacity(0), Color.vexarBlue.opacity(0.6), Color.vexarBlue.opacity(0)], center: .center),
+                        lineWidth: 3
+                    )
+                    .frame(width: 90, height: 90)
+                    .rotationEffect(.degrees(animateBg ? 360 : 0))
+                    .animation(.linear(duration: 8).repeatForever(autoreverses: false), value: animateBg)
+                
+                Circle()
+                    .strokeBorder(
+                        AngularGradient(colors: [Color.vexarGreen.opacity(0), Color.vexarGreen.opacity(0.5), Color.vexarGreen.opacity(0)], center: .center),
                         lineWidth: 2
                     )
-                    .frame(width: 100, height: 100)
-                    .rotationEffect(.degrees(animateBg ? 360 : 0))
-                    .animation(.linear(duration: 20).repeatForever(autoreverses: false), value: animateBg)
-                
-                // Glow
-                Circle()
-                    .fill(Color.vexarBlue.opacity(0.2))
-                    .frame(width: 80, height: 80)
-                    .blur(radius: 20)
-                
-                // Logo
+                    .frame(width: 70, height: 70)
+                    .rotationEffect(.degrees(animateBg ? -360 : 0))
+                    .animation(.linear(duration: 12).repeatForever(autoreverses: false), value: animateBg)
+
                 Image("VexarLogo")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
-                    .frame(width: 60, height: 60)
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
-                    .shadow(color: .vexarBlue.opacity(0.5), radius: 10)
+                    .frame(width: 50, height: 50)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .shadow(color: Color.vexarBlue.opacity(0.6), radius: 15)
             }
             .padding(.top, 10)
             
             VStack(spacing: 8) {
-                Text("Vexar'a Hoş Geldiniz")
-                    .font(.system(size: 24, weight: .bold, design: .rounded))
+                Text("VEXAR 1.0")
+                    .font(.system(size: 28, weight: .heavy, design: .default))
+                    .tracking(2)
                     .foregroundColor(.white)
+                    .shadow(color: .white.opacity(0.1), radius: 10)
                 
                 Text(String(localized: "version"))
-                    .font(.system(size: 11, weight: .medium))
-                    .foregroundColor(.secondary)
-                    .padding(.horizontal, 10)
+                    .font(.system(size: 10, weight: .bold, design: .monospaced))
+                    .foregroundColor(.white.opacity(0.5))
+                    .padding(.horizontal, 12)
                     .padding(.vertical, 4)
-                    .background(Capsule().fill(Color.white.opacity(0.05)))
+                    .background(
+                        Capsule()
+                            .strokeBorder(Color.white.opacity(0.1), lineWidth: 1)
+                            .background(Color.black.opacity(0.3).cornerRadius(20))
+                    )
             }
             
-            // Description
-            Text("Discord bağlantı sorunlarını çözmek için\nSpoofDPI proxy'si kullanır.")
-                .font(.system(size: 14))
-                .foregroundColor(.secondary)
+            Text("Sınırsız internet deneyimine başlamak için\ngerekli bileşenleri kuralım.")
+                .font(.system(size: 13))
+                .foregroundColor(.white.opacity(0.7))
                 .multilineTextAlignment(.center)
                 .lineSpacing(6)
-                .padding(.horizontal, 10)
             
-            // CPU Architecture badge
-            HStack(spacing: 6) {
+            HStack(spacing: 8) {
                 Image(systemName: "cpu")
-                    .font(.system(size: 11))
-                Text(homebrewManager.cpuArchitecture.displayName)
-                    .font(.system(size: 11, weight: .bold))
+                    .font(.system(size: 10))
+                Text(homebrewManager.cpuArchitecture.displayName.uppercased())
+                    .font(.system(size: 10, weight: .bold, design: .monospaced))
             }
-            .foregroundColor(.white)
+            .foregroundColor(Color.vexarBlue)
             .padding(.horizontal, 12)
             .padding(.vertical, 6)
-            .background(
-                Capsule()
-                    .fill(LinearGradient(colors: [.vexarBlue, .vexarBlue.opacity(0.7)], startPoint: .topLeading, endPoint: .bottomTrailing))
-                    .opacity(0.8)
+            .background(Color.vexarBlue.opacity(0.1))
+            .cornerRadius(8)
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color.vexarBlue.opacity(0.2), lineWidth: 1)
             )
-            .shadow(color: .vexarBlue.opacity(0.3), radius: 5)
         }
     }
-    
-    // MARK: - Status Section
     
     private var statusSection: some View {
         VStack(spacing: 16) {
             statusRow(
                 icon: "cube.box.fill",
-                iconColor: .green,
+                iconColor: Color.vexarGreen,
                 title: "Homebrew",
-                subtitle: homebrewManager.isHomebrewInstalled ? "Kurulu" : "brew.sh",
+                subtitle: homebrewManager.isHomebrewInstalled ? "YÜKLÜ" : "Homebrew kurulu değil",
                 isInstalled: homebrewManager.isHomebrewInstalled
             )
             
             statusRow(
                 icon: "network.badge.shield.half.filled",
-                iconColor: .blue,
+                iconColor: Color.vexarBlue,
                 title: "SpoofDPI",
-                subtitle: homebrewManager.isSpoofDPIInstalled ? "Kurulu" : "brew install spoofdpi",
+                subtitle: homebrewManager.isSpoofDPIInstalled ? "YÜKLÜ" : "SpoofDPI kurulu değil",
                 isInstalled: homebrewManager.isSpoofDPIInstalled
             )
             
@@ -177,159 +153,205 @@ struct OnboardingView: View {
                 icon: "gamecontroller.fill",
                 iconColor: .purple,
                 title: "Discord",
-                subtitle: isDiscordInstalled ? "Kurulu" : "/Applications/Discord.app",
+                subtitle: isDiscordInstalled ? "YÜKLÜ" : "Discord kurulu değil",
                 isInstalled: isDiscordInstalled
             )
         }
-        .padding(20)
+        .padding(24)
         .background(
             RoundedRectangle(cornerRadius: 24)
-                .fill(.ultraThinMaterial)
-                .opacity(0.8)
+                .fill(Color.black.opacity(0.3))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 24)
+                        .stroke(
+                            LinearGradient(
+                                colors: [.white.opacity(0.1), .white.opacity(0.02)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 1
+                        )
+                )
         )
-        .overlay(
-            RoundedRectangle(cornerRadius: 24)
-                .stroke(Color.white.opacity(0.05), lineWidth: 1)
-        )
-        .shadow(color: .black.opacity(0.1), radius: 10, y: 5)
+    }
+
+    private func checkDiscord() {
+        isDiscordInstalled = FileManager.default.fileExists(atPath: "/Applications/Discord.app")
     }
     
     private func statusRow(icon: String, iconColor: Color, title: String, subtitle: String, isInstalled: Bool) -> some View {
         HStack(spacing: 16) {
-            // Icon
             ZStack {
                 Circle()
-                    .fill(isInstalled ? iconColor.opacity(0.1) : Color.white.opacity(0.05))
-                    .frame(width: 40, height: 40)
+                    .fill(isInstalled ? iconColor.opacity(0.2) : Color.white.opacity(0.05))
+                    .frame(width: 44, height: 44)
+                    .overlay(
+                        Circle()
+                            .stroke(isInstalled ? iconColor.opacity(0.5) : Color.white.opacity(0.1), lineWidth: 1)
+                    )
+                    .shadow(color: isInstalled ? iconColor.opacity(0.4) : .clear, radius: 8)
                 
                 Image(systemName: icon)
-                    .font(.system(size: 18))
-                    .foregroundColor(isInstalled ? iconColor : .secondary.opacity(0.6))
+                    .font(.system(size: 20))
+                    .foregroundColor(isInstalled ? iconColor : .secondary)
             }
             
-            // Text
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text(title)
-                    .font(.system(size: 15, weight: .semibold))
+                    .font(.system(size: 15, weight: .bold))
                     .foregroundColor(.white)
                 
                 Text(subtitle)
-                    .font(.system(size: 11))
-                    .foregroundColor(.secondary)
+                    .font(.system(size: 11, design: .monospaced))
+                    .foregroundColor(isInstalled ? Color.vexarGreen : .secondary)
             }
             
             Spacer()
             
-            // Status icon
             if isInstalled {
                 Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 22))
-                    .foregroundColor(.vexarGreen)
-                    .shadow(color: .vexarGreen.opacity(0.4), radius: 4)
+                    .font(.system(size: 20))
+                    .foregroundColor(Color.vexarGreen)
+                    .shadow(color: Color.vexarGreen.opacity(0.5), radius: 6)
             } else {
                 Image(systemName: "exclamationmark.circle.fill")
-                    .font(.system(size: 22))
-                    .foregroundColor(.vexarOrange)
-                    .opacity(0.8)
+                    .font(.system(size: 20))
+                    .foregroundColor(Color.vexarOrange)
+                    .opacity(0.7)
             }
         }
     }
     
-    // MARK: - Action Section
-    
     private var actionSection: some View {
-        VStack(spacing: 16) {
-            // Progress indicator
+        VStack(spacing: 20) {
             if homebrewManager.isInstalling {
-                HStack(spacing: 10) {
+                VStack(spacing: 12) {
                     ProgressView()
                         .scaleEffect(0.8)
+                        .tint(.white)
                     Text(homebrewManager.installProgress)
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundColor(.secondary)
+                        .font(.system(size: 12, design: .monospaced))
+                        .foregroundColor(.white.opacity(0.8))
+                        .multilineTextAlignment(.center)
                 }
                 .padding(.bottom, 8)
                 .transition(.opacity)
             }
             
-            // Main action button
             mainActionButton
-            
-            // Secondary actions
             secondaryActions
         }
     }
     
     @ViewBuilder
     private var mainActionButton: some View {
-        if homebrewManager.isSpoofDPIInstalled {
-            // All ready - Continue button
+        if homebrewManager.isSpoofDPIInstalled && isDiscordInstalled {
             Button(action: dismissOnboarding) {
-                HStack(spacing: 10) {
+                HStack(spacing: 12) {
                     Image(systemName: "checkmark.circle.fill")
-                    Text("Devam Et")
+                    Text("KURULUMU TAMAMLA")
                 }
-                .font(.system(size: 16, weight: .bold))
+                .font(.system(size: 14, weight: .heavy))
+                .tracking(1)
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 16)
+                .padding(.vertical, 18)
                 .background(
-                    LinearGradient(
-                        colors: [.vexarGreen, .vexarGreen.opacity(0.8)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(LinearGradient(colors: [Color.vexarGreen, Color.vexarGreen.opacity(0.7)], startPoint: .top, endPoint: .bottom))
+                        
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                    }
                 )
-                .foregroundColor(.white) // Ensure text is set to white
-                .cornerRadius(16) // Correctly apply corner radius
-                .shadow(color: .vexarGreen.opacity(0.4), radius: 10, y: 4)
+                .foregroundColor(.white)
+                .shadow(color: Color.vexarGreen.opacity(0.4), radius: 12, y: 6)
             }
-            .buttonStyle(PlainButtonStyle()) // Ensures button behaves correctly
+            .buttonStyle(.plain)
+            
         } else if !homebrewManager.isHomebrewInstalled {
-            // Install Homebrew first
             Button(action: {
                 homebrewManager.openTerminalForHomebrew()
             }) {
-                HStack(spacing: 10) {
+                HStack(spacing: 12) {
                     Image(systemName: "terminal.fill")
-                    Text("Homebrew'u Terminal'de Kur")
+                    Text("HOMEBREW KUR")
                 }
-                .font(.system(size: 15, weight: .bold))
+                .font(.system(size: 14, weight: .heavy))
+                .tracking(1)
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 16)
-                .background(Color.vexarOrange)
+                .padding(.vertical, 18)
+                .background(
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(LinearGradient(colors: [Color.vexarOrange, Color.vexarOrange.opacity(0.8)], startPoint: .top, endPoint: .bottom))
+                        
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                    }
+                )
                 .foregroundColor(.white)
-                .cornerRadius(16)
-                .shadow(color: .vexarOrange.opacity(0.3), radius: 8, y: 4)
+                .shadow(color: Color.vexarOrange.opacity(0.4), radius: 12, y: 6)
             }
-            .buttonStyle(PlainButtonStyle())
-        } else {
-            // Install SpoofDPI
+            .buttonStyle(.plain)
+            
+        } else if !homebrewManager.isSpoofDPIInstalled {
             Button(action: installSpoofDPI) {
-                HStack(spacing: 10) {
+                HStack(spacing: 12) {
                     if homebrewManager.isInstalling {
-                        ProgressView()
-                            .scaleEffect(0.8)
-                            .tint(.white)
+                        ProgressView().scaleEffect(0.6).tint(.white)
                     } else {
                         Image(systemName: "arrow.down.circle.fill")
                     }
-                    Text("SpoofDPI Kur")
+                    Text("SPOOFDPI İNDİR")
                 }
-                .font(.system(size: 16, weight: .bold))
+                .font(.system(size: 14, weight: .heavy))
+                .tracking(1)
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 16)
+                .padding(.vertical, 18)
                 .background(
-                    LinearGradient(
-                        colors: [.vexarBlue, .vexarOrange],
-                        startPoint: .leading,
-                        endPoint: .trailing
-                    )
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(LinearGradient(colors: [Color.vexarBlue, Color.vexarBlue.opacity(0.7)], startPoint: .top, endPoint: .bottom))
+                        
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                    }
                 )
                 .foregroundColor(.white)
-                .cornerRadius(16)
-                .shadow(color: .vexarBlue.opacity(0.3), radius: 10, y: 5)
+                .shadow(color: Color.vexarBlue.opacity(0.4), radius: 12, y: 6)
             }
-            .buttonStyle(PlainButtonStyle())
+            .buttonStyle(.plain)
+            .disabled(homebrewManager.isInstalling)
+            .opacity(homebrewManager.isInstalling ? 0.7 : 1)
+            
+        } else {
+            Button(action: installDiscord) {
+                HStack(spacing: 12) {
+                    if homebrewManager.isInstalling {
+                        ProgressView().scaleEffect(0.6).tint(.white)
+                    } else {
+                        Image(systemName: "gamecontroller.fill")
+                    }
+                    Text("DISCORD KUR")
+                }
+                .font(.system(size: 14, weight: .heavy))
+                .tracking(1)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 18)
+                .background(
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(LinearGradient(colors: [.purple, .purple.opacity(0.7)], startPoint: .top, endPoint: .bottom))
+                        
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                    }
+                )
+                .foregroundColor(.white)
+                .shadow(color: Color.purple.opacity(0.4), radius: 12, y: 6)
+            }
+            .buttonStyle(.plain)
             .disabled(homebrewManager.isInstalling)
             .opacity(homebrewManager.isInstalling ? 0.7 : 1)
         }
@@ -337,7 +359,6 @@ struct OnboardingView: View {
     
     private var secondaryActions: some View {
         HStack(spacing: 20) {
-            // Refresh button
             Button(action: {
                 withAnimation {
                     homebrewManager.checkInstallations()
@@ -346,38 +367,43 @@ struct OnboardingView: View {
             }) {
                 HStack(spacing: 6) {
                     Image(systemName: "arrow.clockwise")
+                        .font(.system(size: 12, weight: .bold))
                     Text("Yenile")
+                        .font(.system(size: 12, weight: .bold))
                 }
-                .font(.system(size: 13, weight: .medium))
-                .foregroundColor(.secondary)
-                .padding(8)
-                .background(Color.white.opacity(0.05))
-                .cornerRadius(8)
+                .foregroundColor(.white.opacity(0.6))
+                .padding(.horizontal, 16)
+                .padding(.vertical, 10)
+                .background(Capsule().fill(Color.white.opacity(0.05)))
+                .overlay(Capsule().stroke(Color.white.opacity(0.1), lineWidth: 1))
             }
             .buttonStyle(.plain)
             
-            // Skip button (if not installed)
             if !homebrewManager.isSpoofDPIInstalled {
                 Button(action: dismissOnboarding) {
-                    Text("Atla")
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundColor(.secondary.opacity(0.6))
-                        .padding(8)
+                    Text("Şimdilik Atla")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(.white.opacity(0.4))
                 }
                 .buttonStyle(.plain)
             }
         }
     }
     
-    // MARK: - Helpers
-    
-    private func checkDiscord() {
-        isDiscordInstalled = FileManager.default.fileExists(atPath: "/Applications/Discord.app")
-    }
+
     
     private func installSpoofDPI() {
         Task {
             let success = await homebrewManager.installSpoofDPI()
+            if !success && homebrewManager.installError != nil {
+                showError = true
+            }
+        }
+    }
+    
+    private func installDiscord() {
+        Task {
+            let success = await homebrewManager.installDiscord()
             if !success && homebrewManager.installError != nil {
                 showError = true
             }

@@ -123,6 +123,58 @@ final class HomebrewManager: ObservableObject {
         }
     }
     
+    
+    /// Install Discord - copies command and opens Terminal
+    func installDiscord() async -> Bool {
+        guard let brewPath = getHomebrewPath() else {
+            installError = "Homebrew bulunamadı"
+            return false
+        }
+        
+        isInstalling = true
+        installError = nil
+        
+        // Use --cask for GUI apps
+        let command = "\(brewPath) install --cask discord"
+        installCommand = command
+        
+        // Copy to clipboard
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(command, forType: .string)
+        
+        // Open Terminal using shell script approach
+        let scriptPath = "/tmp/vexar_discord_install.sh"
+        let scriptContent = """
+        #!/bin/bash
+        echo "🎮 Discord Kuruluyor..."
+        echo "Komut: \(command)"
+        \(command)
+        echo ""
+        echo "✅ Discord kurulumu tamamlandı! Bu pencereyi kapatabilirsiniz."
+        read -p "Devam etmek için Enter'a basın..."
+        """
+        
+        do {
+            try scriptContent.write(toFile: scriptPath, atomically: true, encoding: .utf8)
+            try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: scriptPath)
+            
+            // Open Terminal with the script
+            let process = Process()
+            process.executableURL = URL(fileURLWithPath: "/usr/bin/open")
+            process.arguments = ["-a", "Terminal", scriptPath]
+            try process.run()
+            
+            installProgress = "Terminal'de Discord kurulumu başlatıldı!"
+            isInstalling = false
+            return true
+        } catch {
+            print("[Vexar] Error: \(error)")
+            installError = "Komut panoya kopyalandı.\nTerminal'i açıp yapıştırın: ⌘V"
+            isInstalling = false
+            return false
+        }
+    }
+    
     /// Install Homebrew
     func openTerminalForHomebrew() {
         let command = "/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""

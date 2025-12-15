@@ -138,7 +138,52 @@ struct SettingsView: View {
                                     .stroke(.white.opacity(0.1), lineWidth: 1)
                             )
                         }
+
                         
+                        // Setup Wizard Button (New)
+                        Button {
+                            // Reset onboarding flag to show it again
+                            UserDefaults.standard.set(false, forKey: "onboardingDismissed")
+                            // Refresh installation checks
+                            homebrewManager.checkInstallations()
+                            // Close settings to reveal main view (which will switch to Onboarding)
+                            dismiss()
+                        } label: {
+                            HStack {
+                                ZStack {
+                                    Circle()
+                                        .fill(LinearGradient(colors: [.vexarBlue, .purple], startPoint: .topLeading, endPoint: .bottomTrailing))
+                                        .frame(width: 32, height: 32)
+                                    
+                                    Image(systemName: "wand.and.stars")
+                                        .font(.system(size: 14, weight: .bold))
+                                        .foregroundColor(.white)
+                                }
+                                
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Kurulum Sihirbazı")
+                                        .font(.system(size: 14, weight: .bold))
+                                        .foregroundColor(.white)
+                                    Text("Gerekli bileşenleri tekrar kurun.")
+                                        .font(.system(size: 11))
+                                        .foregroundColor(.white.opacity(0.6))
+                                }
+                                
+                                Spacer()
+                                
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 14, weight: .bold))
+                                    .foregroundColor(.white.opacity(0.3))
+                            }
+                            .padding(12)
+                            .background(Color.black.opacity(0.2))
+                            .cornerRadius(12)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(.white.opacity(0.1), lineWidth: 1)
+                            )
+                        }
+                        .buttonStyle(ScaleButtonStyle())                        
                         // App Info Section
                         VStack(alignment: .leading, spacing: 12) {
                             Text("BİLGİ")

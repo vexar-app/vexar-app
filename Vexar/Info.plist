@@ -15,7 +15,7 @@
     <key>CFBundlePackageType</key>
     <string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
     <key>CFBundleShortVersionString</key>
-    <string>1.0</string>
+    <string>1.0.0</string>
     <key>CFBundleVersion</key>
     <string>1</string>
     <key>LSMinimumSystemVersion</key>
@@ -24,6 +24,8 @@
     <true/>
     <key>NSHumanReadableCopyright</key>
     <string>Copyright © 2024 Vexar. All rights reserved.</string>
+    <key>NSAppleEventsUsageDescription</key>
+    <string>Vexar, gerekli bileşenleri kurmak için Terminal uygulamasını kontrol eder.</string>
     <key>NSPrincipalClass</key>
     <string>NSApplication</string>
 </dict>

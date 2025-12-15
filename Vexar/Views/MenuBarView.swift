@@ -1,6 +1,6 @@
 import SwiftUI
 
-// MARK: - Vexar 2.0 Menu Bar View
+// MARK: - Vexar 1.0 Menu Bar View
 struct MenuBarView: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var homebrewManager: HomebrewManager
@@ -282,22 +282,22 @@ struct AnimatedMeshBackground: View {
         ZStack {
             Color.black.ignoresSafeArea()
             
-            // Orb 1
+            // Orb 1 (Centered, gentle float)
             Circle()
                 .fill(statusColor.opacity(0.3))
                 .frame(width: 300, height: 300)
                 .blur(radius: 60)
-                .offset(x: animate ? -100 : 100, y: animate ? -50 : 50)
+                .offset(x: animate ? -40 : 40, y: animate ? -20 : 20)
             
-            // Orb 2
+            // Orb 2 (Centered, counter float)
             Circle()
                 .fill(Color.purple.opacity(0.2))
                 .frame(width: 250, height: 250)
                 .blur(radius: 50)
-                .offset(x: animate ? 100 : -50, y: animate ? 100 : -100)
+                .offset(x: animate ? 40 : -40, y: animate ? 20 : -20)
         }
         .onAppear {
-            withAnimation(.easeInOut(duration: 5).repeatForever(autoreverses: true)) {
+            withAnimation(.easeInOut(duration: 4).repeatForever(autoreverses: true)) {
                 animate = true
             }
         }

@@ -63,9 +63,26 @@ class UpdateManager: ObservableObject {
     }
     
     private func isNewerVersion(remote: String, current: String) -> Bool {
-        let remoteClean = remote.replacingOccurrences(of: "v", with: "")
-        let currentClean = current.replacingOccurrences(of: "v", with: "")
+        // Remove prefixes like "v"
+        let remoteClean = remote.replacingOccurrences(of: "v", with: "").trimmingCharacters(in: .whitespacesAndNewlines)
+        let currentClean = current.replacingOccurrences(of: "v", with: "").trimmingCharacters(in: .whitespacesAndNewlines)
         
-        return remoteClean.compare(currentClean, options: .numeric) == .orderedDescending
+        let remoteComponents = remoteClean.split(separator: ".").compactMap { Int($0) }
+        let currentComponents = currentClean.split(separator: ".").compactMap { Int($0) }
+        
+        let maxLength = max(remoteComponents.count, currentComponents.count)
+        
+        for i in 0..<maxLength {
+            let rVal = i < remoteComponents.count ? remoteComponents[i] : 0
+            let cVal = i < currentComponents.count ? currentComponents[i] : 0
+            
+            if rVal > cVal {
+                return true
+            } else if rVal < cVal {
+                return false
+            }
+        }
+        
+        return false // Exactly equal
     }
 }

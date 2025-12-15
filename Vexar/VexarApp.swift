@@ -1,5 +1,6 @@
 import SwiftUI
 import ServiceManagement
+import UserNotifications
 
 @main
 struct VexarApp: App {
@@ -7,11 +8,18 @@ struct VexarApp: App {
     @StateObject private var homebrewManager = HomebrewManager()
     @State private var showOnboarding = false
     
+    init() {
+        requestNotificationPermission()
+    }
+
     var body: some Scene {
         MenuBarExtra {
             ContentView(showOnboarding: $showOnboarding)
                 .environmentObject(appState)
                 .environmentObject(homebrewManager)
+                .onAppear {
+                    sendLaunchNotification()
+                }
         } label: {
             HStack(spacing: 4) {
                 Image("MenuBarIcon") 
@@ -24,6 +32,20 @@ struct VexarApp: App {
         }
         .menuBarExtraStyle(.window)
     }
+    
+    private func requestNotificationPermission() {
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { _, _ in }
+    }
+    
+    private func sendLaunchNotification() {
+        let content = UNMutableNotificationContent()
+        content.title = "Vexar Çalışıyor"
+        content.body = "Uygulama menü çubuğunda aktif. Kontrol etmek için ikona tıklayın."
+        content.sound = .default
+        
+        let request = UNNotificationRequest(identifier: "launch_notification", content: content, trigger: nil)
+        UNUserNotificationCenter.current().add(request)
+    }
 }
 
 /// Content wrapper to handle onboarding
@@ -32,9 +54,12 @@ struct ContentView: View {
     @EnvironmentObject var homebrewManager: HomebrewManager
     @Binding var showOnboarding: Bool
     
+    // Reactive storage
+    @AppStorage("onboardingDismissed") var onboardingDismissed: Bool = false
+    
     var body: some View {
         Group {
-            if shouldShowOnboarding {
+            if !onboardingDismissed {
                 OnboardingView(isPresented: $showOnboarding)
                     .environmentObject(appState)
                     .environmentObject(homebrewManager)
@@ -48,11 +73,6 @@ struct ContentView: View {
             UpdateView()
                 .environmentObject(appState.updateManager)
         }
-    }
-    
-    private var shouldShowOnboarding: Bool {
-        // Show onboarding if SpoofDPI is not installed and hasn't been dismissed
-        !homebrewManager.isSpoofDPIInstalled && !UserDefaults.standard.bool(forKey: "onboardingDismissed")
     }
 }
 
