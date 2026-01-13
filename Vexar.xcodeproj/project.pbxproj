@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5E15CCD12EEFA7EB003D8F29 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5E15CCD02EEFA7EB003D8F29 /* GoogleService-Info.plist */; };
+		5E15CCD52EEFAFDA003D8F29 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 5E15CCD42EEFAFDA003D8F29 /* FirebaseFirestore */; };
+		5E15CCD72EEFB079003D8F29 /* TelemetryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E15CCD62EEFB079003D8F29 /* TelemetryManager.swift */; };
+		5E8130252F16B8B800CF018E /* QuittingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E8130242F16B8B800CF018E /* QuittingView.swift */; };
 		5EB7D15B2EEF5616003D1E67 /* UpdateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EB7D15A2EEF5616003D1E67 /* UpdateManager.swift */; };
 		B2101DF0F412F29F186919BB /* UpdateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E94A493CD6ABA1AE14309B9 /* UpdateView.swift */; };
 		B81000012B4D0001000AAAAA /* VexarApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B81000002B4D0001000AAAAA /* VexarApp.swift */; };
@@ -23,6 +27,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		5E15CCD02EEFA7EB003D8F29 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		5E15CCD62EEFB079003D8F29 /* TelemetryManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelemetryManager.swift; sourceTree = "<group>"; };
+		5E8130242F16B8B800CF018E /* QuittingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuittingView.swift; sourceTree = "<group>"; };
 		5EB7D15A2EEF5616003D1E67 /* UpdateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateManager.swift; sourceTree = "<group>"; };
 		7E94A493CD6ABA1AE14309B9 /* UpdateView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UpdateView.swift; sourceTree = "<group>"; };
 		B80000002B4D0000000AAAAA /* Vexar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Vexar.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -47,16 +54,25 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5E15CCD52EEFAFDA003D8F29 /* FirebaseFirestore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		5E15CCD32EEFAFDA003D8F29 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		B80000022B4D0000000AAAAC = {
 			isa = PBXGroup;
 			children = (
 				B80000032B4D0000000AAAAD /* Vexar */,
+				5E15CCD32EEFAFDA003D8F29 /* Frameworks */,
 				B80000042B4D0000000AAAAE /* Products */,
 			);
 			sourceTree = "<group>";
@@ -88,6 +104,7 @@
 		B80000052B4D0000000AAAAF /* Managers */ = {
 			isa = PBXGroup;
 			children = (
+				5E15CCD62EEFB079003D8F29 /* TelemetryManager.swift */,
 				5EB7D15A2EEF5616003D1E67 /* UpdateManager.swift */,
 				B81000022B4D0001000AAAAC /* ProcessManager.swift */,
 				B81000032B4D0001000AAAAD /* DiscordManager.swift */,
@@ -99,6 +116,7 @@
 		B80000062B4D0000000AAAB0 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				5E8130242F16B8B800CF018E /* QuittingView.swift */,
 				B81000042B4D0001000AAAAE /* MenuBarView.swift */,
 				B81000052B4D0001000AAAAF /* SettingsView.swift */,
 				B81000062B4D0001000AAAB0 /* LogsView.swift */,
@@ -111,6 +129,7 @@
 		B80000072B4D0000000AAAB1 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				5E15CCD02EEFA7EB003D8F29 /* GoogleService-Info.plist */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -160,6 +179,9 @@
 				Base,
 			);
 			mainGroup = B80000022B4D0000000AAAAC;
+			packageReferences = (
+				5E15CCD22EEFA98B003D8F29 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
 			productRefGroup = B80000042B4D0000000AAAAE /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -176,6 +198,7 @@
 			files = (
 				B81000082B4D0001000AAAB1 /* Assets.xcassets in Resources */,
 				B8100011B4D0001000AAAB6 /* Localizable.strings in Resources */,
+				5E15CCD12EEFA7EB003D8F29 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -189,7 +212,9 @@
 				B81000012B4D0001000AAAAA /* VexarApp.swift in Sources */,
 				B81000022B4D0001000AAAAB /* AppState.swift in Sources */,
 				B81000032B4D0001000AAAAC /* ProcessManager.swift in Sources */,
+				5E15CCD72EEFB079003D8F29 /* TelemetryManager.swift in Sources */,
 				B81000042B4D0001000AAAAD /* DiscordManager.swift in Sources */,
+				5E8130252F16B8B800CF018E /* QuittingView.swift in Sources */,
 				B81000052B4D0001000AAAAE /* MenuBarView.swift in Sources */,
 				B81000062B4D0001000AAAAF /* SettingsView.swift in Sources */,
 				B81000072B4D0001000AAAB0 /* LogsView.swift in Sources */,
@@ -252,6 +277,7 @@
 				COPY_PHASE_STRIP = NO;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = M94UD3V6S7;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -317,6 +343,7 @@
 				COPY_PHASE_STRIP = NO;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = M94UD3V6S7;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -419,6 +446,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		5E15CCD22EEFA98B003D8F29 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.7.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		5E15CCD42EEFAFDA003D8F29 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5E15CCD22EEFA98B003D8F29 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = B800000C2B4D0000000AAAB6 /* Project object */;
 }

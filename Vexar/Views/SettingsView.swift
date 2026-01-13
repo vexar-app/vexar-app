@@ -46,6 +46,48 @@ struct SettingsView: View {
                 
                 ScrollView {
                     VStack(spacing: 24) {
+                        // Setup Wizard Button (Moved to Top)
+                        Button {
+                            UserDefaults.standard.set(false, forKey: "onboardingDismissed")
+                            homebrewManager.checkInstallations()
+                            dismiss()
+                        } label: {
+                            HStack {
+                                ZStack {
+                                    Circle()
+                                        .fill(LinearGradient(colors: [.vexarBlue, .purple], startPoint: .topLeading, endPoint: .bottomTrailing))
+                                        .frame(width: 32, height: 32)
+                                    
+                                    Image(systemName: "wand.and.stars")
+                                        .font(.system(size: 14, weight: .bold))
+                                        .foregroundColor(.white)
+                                }
+                                
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Kurulum Sihirbazı")
+                                        .font(.system(size: 14, weight: .bold))
+                                        .foregroundColor(.white)
+                                    Text("Gerekli bileşenleri tekrar kurun.")
+                                        .font(.system(size: 11))
+                                        .foregroundColor(.white.opacity(0.6))
+                                }
+                                
+                                Spacer()
+                                
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 14, weight: .bold))
+                                    .foregroundColor(.white.opacity(0.3))
+                            }
+                            .padding(12)
+                            .background(Color.black.opacity(0.2))
+                            .cornerRadius(12)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(.white.opacity(0.1), lineWidth: 1)
+                            )
+                        }
+                        .buttonStyle(ScaleButtonStyle())
+                        
                         
                         // Launch at Login Section
                         VStack(alignment: .leading, spacing: 12) {
@@ -129,99 +171,84 @@ struct SettingsView: View {
                                     .stroke(.white.opacity(0.1), lineWidth: 1)
                             )
                         }
-
                         
-                        // Setup Wizard Button (New)
-                        Button {
-                            // Reset onboarding flag to show it again
-                            UserDefaults.standard.set(false, forKey: "onboardingDismissed")
-                            // Refresh installation checks
-                            homebrewManager.checkInstallations()
-                            // Close settings to reveal main view (which will switch to Onboarding)
-                            dismiss()
-                        } label: {
-                            HStack {
-                                ZStack {
-                                    Circle()
-                                        .fill(LinearGradient(colors: [.vexarBlue, .purple], startPoint: .topLeading, endPoint: .bottomTrailing))
-                                        .frame(width: 32, height: 32)
-                                    
-                                    Image(systemName: "wand.and.stars")
-                                        .font(.system(size: 14, weight: .bold))
-                                        .foregroundColor(.white)
-                                }
-                                
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text("Kurulum Sihirbazı")
-                                        .font(.system(size: 14, weight: .bold))
-                                        .foregroundColor(.white)
-                                    Text("Gerekli bileşenleri tekrar kurun.")
-                                        .font(.system(size: 11))
-                                        .foregroundColor(.white.opacity(0.6))
-                                }
-                                
-                                Spacer()
-                                
-                                Image(systemName: "chevron.right")
-                                    .font(.system(size: 14, weight: .bold))
-                                    .foregroundColor(.white.opacity(0.3))
-                            }
-                            .padding(12)
-                            .background(Color.black.opacity(0.2))
-                            .cornerRadius(12)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(.white.opacity(0.1), lineWidth: 1)
-                            )
-                        }
-                        .buttonStyle(ScaleButtonStyle())                        
-                        // App Info Section
+                        // Privacy Section
                         VStack(alignment: .leading, spacing: 12) {
-                            Text("BİLGİ")
+                            Text("GİZLİLİK")
                                 .font(.system(size: 10, weight: .bold))
                                 .foregroundColor(.white.opacity(0.5))
                             
-                            VStack(spacing: 0) {
-                                // Version
-                                HStack {
-                                    Image(systemName: "info.circle")
-                                        .foregroundColor(.vexarBlue)
-                                    Text("Versiyon")
-                                        .font(.system(size: 13))
-                                        .foregroundColor(.white.opacity(0.8))
-                                    Spacer()
-                                    Text("1.0.0 (Beta)")
-                                        .font(.system(size: 13, weight: .bold, design: .monospaced))
+                            HStack {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("Anonim Veri Toplama")
+                                        .font(.system(size: 14, weight: .medium))
+                                        .foregroundColor(.white)
+                                    Text("Vexar'ın geliştirilmesine katkıda bulunmak için anonim kullanım verilerini paylaşın.")
+                                        .font(.system(size: 12))
                                         .foregroundColor(.white.opacity(0.6))
+                                        .fixedSize(horizontal: false, vertical: true)
                                 }
-                                .padding(16)
+                                Spacer()
                                 
-                                Divider().background(.white.opacity(0.1))
-                                
-                                // SpoofDPI Status
-                                HStack {
-                                    Image(systemName: "server.rack")
-                                        .foregroundColor(.vexarGreen)
-                                    Text("Eklenti Durumu")
-                                        .font(.system(size: 13))
-                                        .foregroundColor(.white.opacity(0.8))
-                                    Spacer()
-                                    
-                                    HStack(spacing: 6) {
-                                        Circle()
-                                            .fill(homebrewManager.isSpoofDPIInstalled ? Color.vexarGreen : Color.vexarOrange)
-                                            .frame(width: 6, height: 6)
-                                        Text(homebrewManager.isSpoofDPIInstalled ? "YÜKLÜ" : "YOK")
-                                            .font(.system(size: 10, weight: .bold))
-                                            .foregroundColor(homebrewManager.isSpoofDPIInstalled ? .vexarGreen : .vexarOrange)
+                                // Analytic Toggle
+                                Button {
+                                    withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                                        appState.isAnalyticsEnabled.toggle()
+                                        if appState.isAnalyticsEnabled {
+                                            TelemetryManager.shared.sendEvent(eventName: "analytics_opt_in")
+                                        }
                                     }
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 4)
-                                    .background(Color.black.opacity(0.3))
-                                    .cornerRadius(6)
+                                } label: {
+                                    ZStack {
+                                        // Track
+                                        Capsule()
+                                            .fill(Color.black.opacity(0.4))
+                                            .frame(width: 130, height: 36)
+                                            .overlay(
+                                                Capsule().stroke(Color.white.opacity(0.1), lineWidth: 1)
+                                            )
+                                        
+                                        // Sliding Knob Container
+                                        HStack {
+                                            if appState.isAnalyticsEnabled {
+                                                Spacer()
+                                            }
+                                            
+                                            // Knob
+                                            HStack(spacing: 6) {
+                                                Image(systemName: appState.isAnalyticsEnabled ? "chart.bar.fill" : "chart.bar")
+                                                    .font(.system(size: 12, weight: .bold))
+                                                Text(appState.isAnalyticsEnabled ? "AÇIK" : "KAPALI")
+                                                    .font(.system(size: 10, weight: .bold, design: .monospaced))
+                                            }
+                                            .foregroundColor(appState.isAnalyticsEnabled ? .white : .white.opacity(0.6))
+                                            .padding(.horizontal, 12)
+                                            .padding(.vertical, 6)
+                                            .background(
+                                                Capsule()
+                                                    .fill(
+                                                        appState.isAnalyticsEnabled ?
+                                                        LinearGradient(colors: [.vexarBlue, .vexarBlue.opacity(0.8)], startPoint: .top, endPoint: .bottom) :
+                                                            LinearGradient(colors: [.gray.opacity(0.3), .gray.opacity(0.1)], startPoint: .top, endPoint: .bottom)
+                                                    )
+                                                    .shadow(color: appState.isAnalyticsEnabled ? .vexarBlue.opacity(0.4) : .black.opacity(0.3), radius: 5)
+                                                    .overlay(
+                                                        Capsule().stroke(Color.white.opacity(0.2), lineWidth: 1)
+                                                    )
+                                            )
+                                            .frame(height: 32)
+                                            
+                                            if !appState.isAnalyticsEnabled {
+                                                Spacer()
+                                            }
+                                        }
+                                        .padding(.horizontal, 2)
+                                        .frame(width: 130)
+                                    }
                                 }
-                                .padding(16)
+                                .buttonStyle(.plain)
                             }
+                            .padding(16)
                             .background(Color.black.opacity(0.2))
                             .cornerRadius(12)
                             .overlay(
@@ -229,67 +256,225 @@ struct SettingsView: View {
                                     .stroke(.white.opacity(0.1), lineWidth: 1)
                             )
                         }
+
                         
-                        // Branding Section
-                        VStack(spacing: 16) {
-                            HStack(spacing: 12) {
-                                Image(systemName: "person.crop.circle.fill")
-                                    .resizable()
-                                    .frame(width: 32, height: 32)
-                                    .foregroundColor(.white.opacity(0.8))
+
+
+                            
+
+                            
+                            // Developer Section
+                            VStack(alignment: .leading, spacing: 12) {
+                                Text("GELİŞTİRİCİ")
+                                    .font(.system(size: 10, weight: .bold))
+                                    .foregroundColor(.white.opacity(0.5))
                                 
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text("Geliştirici")
-                                        .font(.system(size: 10, weight: .bold))
-                                        .foregroundColor(.white.opacity(0.4))
-                                    Text("ConsolAktif")
-                                        .font(.system(size: 16, weight: .bold))
+                                VStack(spacing: 16) {
+                                    // Profile Header
+                                    HStack(spacing: 14) {
+                                        ZStack {
+                                            Circle()
+                                                .fill(
+                                                    LinearGradient(colors: [.red, .orange], startPoint: .topLeading, endPoint: .bottomTrailing)
+                                                )
+                                                .frame(width: 48, height: 48)
+                                                .shadow(color: .red.opacity(0.4), radius: 6)
+                                            
+                                            Image(systemName: "person.fill")
+                                                .font(.system(size: 20, weight: .bold))
+                                                .foregroundColor(.white)
+                                        }
+                                        
+                                        VStack(alignment: .leading, spacing: 4) {
+                                            Text("ConsolAktif")
+                                                .font(.system(size: 17, weight: .bold))
+                                                .foregroundColor(.white)
+                                            
+                                            Text("Vexar Geliştiricisi")
+                                                .font(.system(size: 12, weight: .medium))
+                                                .foregroundColor(.white.opacity(0.6))
+                                        }
+                                        
+                                        Spacer()
+                                    }
+                                    
+                                    // Subscribe Button
+                                    Button {
+                                        if let url = URL(string: "https://www.youtube.com/@ConsolAktif/videos") {
+                                            NSWorkspace.shared.open(url)
+                                        }
+                                    } label: {
+                                        HStack(spacing: 8) {
+                                            Image(systemName: "play.rectangle.fill")
+                                                .font(.system(size: 16))
+                                            Text("YouTube'da Abone Ol")
+                                                .font(.system(size: 13, weight: .bold))
+                                        }
                                         .foregroundColor(.white)
+                                        .frame(maxWidth: .infinity)
+                                        .padding(.vertical, 12)
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 12)
+                                                .fill(Color(red: 0.9, green: 0, blue: 0)) // YouTube Red
+                                                .shadow(color: .red.opacity(0.4), radius: 5, y: 2)
+                                        )
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 12)
+                                                .stroke(.white.opacity(0.2), lineWidth: 1)
+                                        )
+                                    }
+                                    .buttonStyle(ScaleButtonStyle())
                                 }
-                                Spacer()
+                                .padding(16)
+                                .background(Color.black.opacity(0.2))
+                                .cornerRadius(16)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 16)
+                                        .stroke(.white.opacity(0.1), lineWidth: 1)
+                                )
                             }
                             
-                            Link(destination: URL(string: "https://www.youtube.com/@ConsolAktif")!) {
-                                HStack {
-                                    Image(systemName: "play.rectangle.fill")
-                                    Text("YouTube'da Takip Et")
-                                        .font(.system(size: 13, weight: .bold))
+                            // Danger Zone
+                            VStack(alignment: .leading, spacing: 12) {
+                                Text("TEHLİKELİ BÖLGE")
+                                    .font(.system(size: 10, weight: .bold))
+                                    .foregroundColor(.red.opacity(0.5))
+                                
+                                Button {
+                                    withAnimation {
+                                        uninstallStep = .confirmation
+                                    }
+                                } label: {
+                                    HStack {
+                                        ZStack {
+                                            Circle()
+                                                .fill(Color.red.opacity(0.2))
+                                                .frame(width: 32, height: 32)
+                                            
+                                            Image(systemName: "trash.fill")
+                                                .font(.system(size: 14, weight: .bold))
+                                                .foregroundColor(.red)
+                                        }
+                                        
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            Text("Uygulamayı Tamamen Kaldır")
+                                                .font(.system(size: 14, weight: .bold))
+                                                .foregroundColor(.red)
+                                            Text("Vexar ve bileşenlerini siler.")
+                                                .font(.system(size: 11))
+                                                .foregroundColor(.white.opacity(0.6))
+                                        }
+                                        
+                                        Spacer()
+                                        
+                                        Image(systemName: "exclamationmark.triangle.fill")
+                                            .foregroundColor(.red.opacity(0.5))
+                                    }
+                                    .padding(12)
+                                    .background(Color.red.opacity(0.1))
+                                    .cornerRadius(12)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .stroke(.red.opacity(0.3), lineWidth: 1)
+                                    )
                                 }
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 12)
-                                .background(
-                                    LinearGradient(colors: [.red.opacity(0.9), .red.opacity(0.6)], startPoint: .top, endPoint: .bottom)
-                                )
-                                .cornerRadius(12)
-                                .shadow(color: .red.opacity(0.4), radius: 8, y: 4)
+                                .buttonStyle(ScaleButtonStyle())
                             }
-                            .buttonStyle(.plain)
-                        }
+                        } // End VStack
                         .padding(20)
-                        .background(
-                            ZStack {
-                                Color.black.opacity(0.3)
-                                RadialGradient(colors: [.vexarBlue.opacity(0.1), .clear], center: .center, startRadius: 0, endRadius: 100)
-                            }
-                        )
-                        .cornerRadius(16)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 16)
-                                .stroke(LinearGradient(colors: [.white.opacity(0.2), .clear], startPoint: .top, endPoint: .bottom), lineWidth: 1)
-                        )
-                    }
-                    .padding(20)
-                    .readHeight { height in
-                        // Reuse resizing logic
-                        let newHeight = height + 80
-                        if abs(contentHeight - newHeight) > 1 {
-                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                 withAnimation { contentHeight = newHeight }
-                             }
+                        .readHeight { height in
+                           // ...
                         }
                     }
                 }
+            
+            // 3. Uninstall Overlay
+            if uninstallStep != .initial {
+                ZStack {
+                    Color.black.opacity(0.8)
+                        .ignoresSafeArea()
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            // Block taps from reaching the popover dismissal behavior
+                        }
+                    
+                    VStack(spacing: 24) {
+                        Image(systemName: "trash.circle.fill")
+                            .font(.system(size: 64))
+                            .foregroundColor(.red)
+                        
+                        Text("Vexar Kaldırma Aracı")
+                            .font(.title2.bold())
+                            .foregroundColor(.white)
+                        
+                        if uninstallStep == .confirmation {
+                            Text("Bu işlem uygulamayı ve tüm verilerini silecektir.\nSpoofDPI otomatik olarak kaldırılacak, diğer bileşenler için size sorulacaktır.\n\nDevam etmek istiyor musunuz?")
+                                .font(.body)
+                                .foregroundColor(.white.opacity(0.8))
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal)
+                        } else {
+                            Text(uninstallStatus)
+                                .font(.body)
+                                .foregroundColor(.white.opacity(0.8))
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal)
+                        }
+                        
+                        if uninstallStep == .removingSpoofDPI || uninstallStep == .final {
+                            ProgressView()
+                                .tint(.white)
+                                .scaleEffect(1.5)
+                        } else {
+                            HStack(spacing: 20) {
+                                Button {
+                                    if uninstallStep == .confirmation {
+                                        withAnimation {
+                                            uninstallStep = .initial
+                                        }
+                                    } else {
+                                        handleUninstallChoice(remove: false)
+                                    }
+                                } label: {
+                                    Text("Hayır")
+                                        .font(.system(size: 14, weight: .bold))
+                                        .foregroundColor(.white)
+                                        .padding(.horizontal, 24)
+                                        .padding(.vertical, 12)
+                                        .background(Capsule().fill(Color.white.opacity(0.1)))
+                                }
+                                .buttonStyle(.plain)
+                                
+                                Button {
+                                    if uninstallStep == .confirmation {
+                                        startUninstall()
+                                    } else {
+                                        handleUninstallChoice(remove: true)
+                                    }
+                                } label: {
+                                    Text("Evet")
+                                        .font(.system(size: 14, weight: .bold))
+                                        .foregroundColor(.white)
+                                        .padding(.horizontal, 24)
+                                        .padding(.vertical, 12)
+                                        .background(Capsule().fill(Color.red))
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                    }
+                    .padding(40)
+                    .background(
+                        RoundedRectangle(cornerRadius: 24)
+                            .fill(.ultraThinMaterial)
+                            .overlay(RoundedRectangle(cornerRadius: 24).stroke(Color.white.opacity(0.1)))
+                    )
+                    .contentShape(Rectangle()) // Capture clicks on the card
+                    .onTapGesture { } // Swallow clicks on the card
+                    .padding(40)
+                    .transition(.opacity.combined(with: .scale))
+                }
+                .zIndex(100)
             }
         }
         // Height Preference Emit
@@ -302,5 +487,80 @@ struct SettingsView: View {
         }
     }
     
+    // MARK: - Uninstall Logic
+    
+    enum UninstallStep {
+        case initial
+        case confirmation
+        case removingSpoofDPI
+        case askDiscord
+        case askHomebrew
+        case final
+    }
+    
+    @State private var showUninstallAlert = false
+    @State private var uninstallStep: UninstallStep = .initial
+    @State private var uninstallStatus: String = ""
+    
+    func startUninstall() {
+        withAnimation {
+            uninstallStep = .removingSpoofDPI
+            uninstallStatus = "SpoofDPI ve servisler durduruluyor..."
+        }
+        
+        Task {
+            // Wait for UI animation
+            try? await Task.sleep(nanoseconds: 1 * 1_000_000_000)
+            
+            // Remove SpoofDPI
+            await MainActor.run { uninstallStatus = "SpoofDPI kaldırılıyor..." }
+            _ = await homebrewManager.uninstallSpoofDPI()
+            
+            try? await Task.sleep(nanoseconds: 1 * 1_000_000_000)
+            
+            // Move to Discord Step
+            await MainActor.run {
+                withAnimation {
+                    uninstallStep = .askDiscord
+                    uninstallStatus = "Discord uygulamasını da kaldırmak ister misiniz?\n(Sadece Vexar ile yüklediyseniz önerilir)"
+                }
+            }
+        }
+    }
+    
+    func handleUninstallChoice(remove: Bool) {
+        Task {
+            if uninstallStep == .askDiscord {
+                if remove {
+                    await MainActor.run { uninstallStatus = "Discord kaldırılıyor..." }
+                    _ = await homebrewManager.uninstallDiscord()
+                }
+                
+                await MainActor.run {
+                    withAnimation {
+                        uninstallStep = .askHomebrew
+                        uninstallStatus = "Homebrew paket yöneticisini de kaldırmak ister misiniz?\n(Eğer başka geliştirici araçları kullanıyorsanız SAKLAYIN)"
+                    }
+                }
+            } else if uninstallStep == .askHomebrew {
+                if remove {
+                    await MainActor.run { uninstallStatus = "Homebrew kaldırma betiği çalıştırılıyor..." }
+                    homebrewManager.uninstallHomebrew()
+                    // Give user time to see terminal
+                    try? await Task.sleep(nanoseconds: 3 * 1_000_000_000)
+                }
+                
+                await MainActor.run {
+                    withAnimation {
+                        uninstallStep = .final
+                        uninstallStatus = "Vexar temizleniyor...\nHoşçakalın! 👋"
+                    }
+                }
+                
+                try? await Task.sleep(nanoseconds: 2 * 1_000_000_000)
+                homebrewManager.selfDestruct()
+            }
+        }
+    }
 
 }

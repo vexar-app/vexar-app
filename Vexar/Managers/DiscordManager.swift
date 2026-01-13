@@ -86,9 +86,11 @@ final class DiscordManager {
         do {
             try process.run()
             print("[Vexar] Discord launched successfully with proxy on port \(port)")
+            TelemetryManager.shared.sendEvent(eventName: "discord_launched", parameters: ["port": port, "status": "success"])
             completion?(true)
         } catch {
             print("[Vexar] Failed to launch Discord: \(error)")
+            TelemetryManager.shared.sendEvent(eventName: "discord_launched", parameters: ["status": "failed", "error": error.localizedDescription])
             completion?(false)
         }
     }

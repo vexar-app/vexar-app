@@ -5,9 +5,13 @@ import ServiceManagement
 /// Central state management for the Vexar app
 @MainActor
 final class AppState: ObservableObject {
+    static let shared = AppState()
+    
     // MARK: - Connection State
     @Published var isConnected: Bool = false
     @Published var isConnecting: Bool = false
+    
+    @Published var quittingStatus: String = "Kapatılıyor..."
     
     // MARK: - Settings
     // Obsolete port setting, kept for legacy compatibility but not actively used for connection logic
@@ -19,6 +23,8 @@ final class AppState: ObservableObject {
             updateLaunchAtLogin()
         }
     }
+    
+    @AppStorage("isAnalyticsEnabled") var isAnalyticsEnabled: Bool = true
     
     // MARK: - Logs
     @Published var logs: [String] = []
@@ -44,7 +50,9 @@ final class AppState: ObservableObject {
         
         // Ensure safe cleanup on app exit
         NotificationCenter.default.addObserver(forName: NSApplication.willTerminateNotification, object: nil, queue: .main) { [weak self] _ in
-            self?.disconnect()
+            MainActor.assumeIsolated {
+                self?.processManager.stopBlocking()
+            }
         }
     }
 
@@ -129,3 +137,6 @@ extension DateFormatter {
         return formatter
     }()
 }
+
+
+

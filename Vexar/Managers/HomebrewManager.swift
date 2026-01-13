@@ -96,7 +96,14 @@ final class HomebrewManager: ObservableObject {
         let scriptPath = "/tmp/vexar_install.sh"
         let scriptContent = """
         #!/bin/bash
+        echo "🔧 Ön Temizlik Yapılıyor..."
+        # Prevent service conflicts
+        \(brewPath) services stop spoofdpi 2>/dev/null
+        killall spoofdpi 2>/dev/null
+        
+        echo "⬇️ SpoofDPI Kuruluyor..."
         \(command)
+        
         echo ""
         echo "✅ Kurulum tamamlandı! Bu pencereyi kapatabilirsiniz."
         read -p "Devam etmek için Enter'a basın..."
@@ -112,13 +119,29 @@ final class HomebrewManager: ObservableObject {
             process.arguments = ["-a", "Terminal", scriptPath]
             try process.run()
             
-            installProgress = "Terminal'de kurulum başlatıldı!\nKomut panoya kopyalandı."
+            installProgress = "SpoofDPI kuruluyor... Lütfen Terminal'i takip edin."
+            
+            // Poll for installation (max 2 minutes)
+            for _ in 0..<60 {
+                try? await Task.sleep(nanoseconds: 2 * 1_000_000_000) // Check every 2s
+                checkInstallations()
+                if isSpoofDPIInstalled {
+                    installProgress = "Kurulum başarılı!"
+                    try? await Task.sleep(nanoseconds: 1 * 1_000_000_000)
+                    isInstalling = false
+                    TelemetryManager.shared.sendEvent(eventName: "install_spoofdpi", parameters: ["status": "success", "method": "automated"])
+                    return true
+                }
+            }
+            
+            // Timeout but maybe they are just slow?
             isInstalling = false
-            return true
+            return false
         } catch {
             print("[Vexar] Error: \(error)")
             installError = "Komut panoya kopyalandı.\nTerminal'i açıp yapıştırın: ⌘V"
             isInstalling = false
+            TelemetryManager.shared.sendEvent(eventName: "install_spoofdpi", parameters: ["status": "failed", "error": error.localizedDescription])
             return false
         }
     }
@@ -164,19 +187,34 @@ final class HomebrewManager: ObservableObject {
             process.arguments = ["-a", "Terminal", scriptPath]
             try process.run()
             
-            installProgress = "Terminal'de Discord kurulumu başlatıldı!"
+            installProgress = "Discord kuruluyor... Lütfen Terminal'i takip edin."
+            
+            // Poll for installation (max 5 minutes for Discord as it's large)
+            for _ in 0..<150 {
+                try? await Task.sleep(nanoseconds: 2 * 1_000_000_000)
+                if FileManager.default.fileExists(atPath: "/Applications/Discord.app") {
+                    installProgress = "Discord başarıyla kuruldu!"
+                    try? await Task.sleep(nanoseconds: 1 * 1_000_000_000)
+                    isInstalling = false
+                    TelemetryManager.shared.sendEvent(eventName: "install_discord", parameters: ["status": "success"])
+                    return true
+                }
+            }
+            
             isInstalling = false
-            return true
+            return false
         } catch {
             print("[Vexar] Error: \(error)")
             installError = "Komut panoya kopyalandı.\nTerminal'i açıp yapıştırın: ⌘V"
             isInstalling = false
+            TelemetryManager.shared.sendEvent(eventName: "install_discord", parameters: ["status": "failed", "error": error.localizedDescription])
             return false
         }
     }
     
     /// Install Homebrew
-    func openTerminalForHomebrew() {
+    func openTerminalForHomebrew() async {
+        isInstalling = true
         let command = "/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
         installCommand = command
         
@@ -188,7 +226,115 @@ final class HomebrewManager: ObservableObject {
         let scriptPath = "/tmp/vexar_homebrew.sh"
         let scriptContent = """
         #!/bin/bash
+        echo "🍺 Homebrew Kuruluyor..."
+        echo "Lütfen şifrenizi girin (yazarken görünmez) ve Enter'a basın."
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        echo ""
+        echo "✅ İşlem tamamlandı! Pencereyi kapatabilirsiniz."
+        read -p "Bitirmek için Enter..."
+        """
+        
+        do {
+            try scriptContent.write(toFile: scriptPath, atomically: true, encoding: .utf8)
+            try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: scriptPath)
+            
+            let process = Process()
+            process.executableURL = URL(fileURLWithPath: "/usr/bin/open")
+            process.arguments = ["-a", "Terminal", scriptPath]
+            try process.run()
+            
+            installProgress = "Homebrew kuruluyor... Bu işlem biraz sürebilir."
+            
+            // Poll for Homebrew (max 10 minutes)
+            for _ in 0..<300 {
+                try? await Task.sleep(nanoseconds: 2 * 1_000_000_000)
+                checkInstallations()
+                if isHomebrewInstalled {
+                    installProgress = "Homebrew başarıyla kuruldu!"
+                    try? await Task.sleep(nanoseconds: 1 * 1_000_000_000)
+                    isInstalling = false
+                    return
+                }
+            }
+            
+            isInstalling = false
+        } catch {
+            print("[Vexar] Error: \(error)")
+            installError = "Komut panoya kopyalandı.\nTerminal'i açıp yapıştırın: ⌘V"
+            isInstalling = false
+        }
+    }
+
+    // MARK: - Uninstallation Logic
+    
+    /// Uninstall SpoofDPI
+    func uninstallSpoofDPI() async -> Bool {
+        // 1. Stop the process
+        let killProcess = Process()
+        killProcess.executableURL = URL(fileURLWithPath: "/usr/bin/killall")
+        killProcess.arguments = ["spoofdpi"]
+        try? killProcess.run()
+        killProcess.waitUntilExit()
+        
+        // 2. Uninstall via Homebrew
+        guard let brewPath = getHomebrewPath() else { return false }
+        
+        // Try running directly first
+        let command = "\(brewPath) uninstall spoofdpi"
+        
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/bin/bash")
+        process.arguments = ["-c", command]
+        
+        do {
+            try process.run()
+            process.waitUntilExit()
+            
+            checkInstallations()
+            TelemetryManager.shared.sendEvent(eventName: "uninstall_spoofdpi", parameters: ["status": "success"])
+            return true
+        } catch {
+            print("[Vexar] Failed to uninstall SpoofDPI: \(error)")
+            return false
+        }
+    }
+    
+    /// Uninstall Discord
+    func uninstallDiscord() async -> Bool {
+        guard let brewPath = getHomebrewPath() else { return false }
+        
+        let scriptPath = "/tmp/vexar_discord_uninstall.sh"
+        let scriptContent = """
+        #!/bin/bash
+        echo "🗑️ Discord Kaldırılıyor..."
+        \(brewPath) uninstall --cask discord
+        echo "✅ Discord kaldırıldı."
+        """
+        
+        do {
+            try scriptContent.write(toFile: scriptPath, atomically: true, encoding: .utf8)
+            try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: scriptPath)
+            
+            let process = Process()
+            process.executableURL = URL(fileURLWithPath: "/usr/bin/open")
+            process.arguments = ["-a", "Terminal", scriptPath]
+            try process.run()
+            
+            // Assume success for UI flow as it's external
+            return true
+        } catch {
+            return false
+        }
+    }
+    
+    /// Uninstall Homebrew
+    func uninstallHomebrew() {
+        let scriptPath = "/tmp/vexar_brew_uninstall.sh"
+        let scriptContent = """
+        #!/bin/bash
+        echo "🍺 Homebrew Kaldırılıyor..."
+        echo "⚠️ Bu işlem tüm Homebrew paketlerini silecektir!"
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/uninstall.sh)"
         """
         
         do {
@@ -200,8 +346,55 @@ final class HomebrewManager: ObservableObject {
             process.arguments = ["-a", "Terminal", scriptPath]
             try process.run()
         } catch {
-            print("[Vexar] Error: \(error)")
-            installError = "Komut panoya kopyalandı.\nTerminal'i açıp yapıştırın: ⌘V"
+            print("[Vexar] Failed to launch brew uninstall: \(error)")
+        }
+    }
+    
+    /// Self Destruct: Deletes app support files and the app itself
+    func selfDestruct() {
+        // 1. Delete UserDefaults
+        if let bundleID = Bundle.main.bundleIdentifier {
+            UserDefaults.standard.removePersistentDomain(forName: bundleID)
+        }
+        
+        // 2. Prepare Self-Destruct Script
+        let bundlePath = Bundle.main.bundlePath
+        let scriptPath = "/tmp/vexar_self_destruct.sh"
+        
+        let supportPath = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?.appendingPathComponent("Vexar").path ?? ""
+        let cachesPath = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first?.appendingPathComponent(Bundle.main.bundleIdentifier ?? "com.vexar").path ?? ""
+        
+        let scriptContent = """
+        #!/bin/bash
+        echo "💥 Vexar kendini imha ediyor..."
+        sleep 2
+        
+        echo "📂 Dosyalar temizleniyor..."
+        rm -rf "\(supportPath)"
+        rm -rf "\(cachesPath)"
+        
+        echo "🗑️ Uygulama siliniyor: \(bundlePath)"
+        rm -rf "\(bundlePath)"
+        
+        echo "✅ Vexar bilgisayarınızdan tamamen kaldırıldı."
+        sleep 1
+        exit 0
+        """
+        
+        do {
+            try scriptContent.write(toFile: scriptPath, atomically: true, encoding: .utf8)
+            try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: scriptPath)
+            
+            // 3. Launch Script
+            let process = Process()
+            process.executableURL = URL(fileURLWithPath: "/usr/bin/open")
+            process.arguments = ["-a", "Terminal", scriptPath]
+            try process.run()
+            
+            // 4. Quit App Immediately
+            NSApplication.shared.terminate(nil)
+        } catch {
+            print("[Vexar] Self destruct failed: \(error)")
         }
     }
 }

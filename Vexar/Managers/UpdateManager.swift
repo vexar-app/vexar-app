@@ -31,9 +31,9 @@ class UpdateManager: ObservableObject {
     @Published var releaseNotes: String = ""
     @Published var downloadURL: URL?
     
-    // TODO: USER MUST CONFIGURE THIS
-    private let githubOwner = "MuratGuelr" // CHANGE THIS
-    private let githubRepo = "vexar-app"     // CHANGE THIS
+    // GitHub Release Configuration
+    private let githubOwner = "MuratGuelr"
+    private let githubRepo = "vexar-app"
     
     func checkForUpdates() async {
         guard let url = URL(string: "https://api.github.com/repos/\(githubOwner)/\(githubRepo)/releases/latest") else { return }
@@ -56,6 +56,7 @@ class UpdateManager: ObservableObject {
                 }
                 
                 self.isUpdateAvailable = true
+                TelemetryManager.shared.sendEvent(eventName: "update_available", parameters: ["version": release.tagName, "current": currentVersion])
             }
         } catch {
             print("Update check failed: \(error)")

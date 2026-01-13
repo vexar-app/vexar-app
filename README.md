@@ -67,6 +67,13 @@ Vexar, arka planda güvenilir araçları kullanarak Discord trafiğini optimize 
 3. **İlk Açılış**: Uygulamayı açın. İlk açılışta gerekli izinleri isteyecektir.
    - *Not: Eğer Homebrew veya SpoofDPI sisteminizde yoksa, Vexar bunları kurmak için sizden onay isteyecek ve kurulumu Terminal üzerinden şeffaf bir şekilde yapacaktır.*
 
+> [!WARNING]
+> **"Geliştiricisi Doğrulanamadı" Hatası Alırsanız:**
+> Apple geliştirici sertifikamız henüz onaylanmadığı için ilk açılışta uyarı verebilir.
+> 1. Uygulama ikonuna **Sağ Tıklayın**.
+> 2. **Aç** seçeneğine basın.
+> 3. Çıkan pencerede tekrar **Aç** butonuna tıklayın. Bunu sadece bir kez yapmanız yeterlidir.
+
 ---
 
 ## 🎮 Kullanım
@@ -120,6 +127,15 @@ Detaylar için LICENSE dosyasına bakın.
 
 ---
 
+## 🔒 Gizlilik ve Veri Toplama
+
+Vexar, geliştirmeyi desteklemek için **tamamen anonim** kullanım verileri toplar.
+- **Toplanan Veriler:** Sadece teknik bilgiler (Sürüm, İşlemci Tipi) ve temel aksiyonlar (Uygulama Açıldı, Bağlanıldı).
+- **Toplanmayanlar:** IP Adresi, Kişisel Kimlik, Konum, Dosyalar.
+- **Kontrol Sizde:** Bu özellik Ayarlar menüsünden tamamen kapatılabilir (Opt-out).
+
+---
+
 ## ⚖️ Sorumluluk Reddi
 
 > [!IMPORTANT]
@@ -129,7 +145,10 @@ Detaylar için LICENSE dosyasına bakın.
 - ❌ Ticari kullanım garantisi verilmez.
 - ⚠️ Geliştirici, kullanımdan doğabilecek zararlardan sorumlu değildir.
 - 📚 Kullanıcılar bu yazılımı kendi sorumlulukları altında kullanırlar.
-- ⚖️ Bu araç sadece DPI kısıtlamalarını aşmak için yerel bir proxy oluşturur; verilerinizi kaydetmez veya izlemez.
+- ⚖️ Bu araç sadece DPI kısıtlamalarını aşmak için yerel bir proxy oluşturur.
+- 🔒 **Gizlilik Odaklı Analitik**: Uygulamayı geliştirebilmek için *tamamen anonim* kullanım verileri toplanır (örn. kaç kişi kurdu, hangi sürüm kullanılıyor).
+    - Hiçbir kişisel veri (IP, kullanıcı adı, dosya) **TOPLANMAZ**.
+    - Bu özellik Ayarlar menüsünden tamamen kapatılabilir.
 
 **Yasal Uyarı:** Bu programın kullanımından doğan her türlü yasal sorumluluk kullanıcıya aittir. Uygulama yalnızca eğitim ve araştırma amaçları ile geliştirilmiştir.
 

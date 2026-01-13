@@ -10,7 +10,7 @@ final class ProcessManager: ObservableObject {
     // Add current port property to be read by others if needed, though UI won't show it explicitly
     @Published private(set) var currentPort: Int = 8080
     
-    private var process: Process?
+    nonisolated(unsafe) private var process: Process?
     private var outputPipe: Pipe?
     private var errorPipe: Pipe?
     
@@ -44,6 +44,12 @@ final class ProcessManager: ObservableObject {
     nonisolated func start() async throws {
         // Reset manual stop flag
         await MainActor.run { self.isUserInitiatedStop = false }
+        
+        // Kill any existing instances to prevent conflicts
+        killExistingProcesses()
+        
+        // Wait a brief moment for cleanup
+        try? await Task.sleep(nanoseconds: 500_000_000) // 0.5s
         
         let binaryPath = findBinary()
         guard let binaryPath = binaryPath else {
@@ -108,6 +114,17 @@ final class ProcessManager: ObservableObject {
         }
     }
     
+    /// Kill any existing spoofdpi processes to ensure a clean state
+    nonisolated private func killExistingProcesses() {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/killall")
+        process.arguments = ["spoofdpi"]
+        process.standardOutput = Pipe() // Suppress output
+        process.standardError = Pipe() // Suppress errors (like "no process found")
+        try? process.run()
+        process.waitUntilExit()
+    }
+    
     /// Stop the running process
     func stop() {
         isUserInitiatedStop = true
@@ -122,6 +139,30 @@ final class ProcessManager: ObservableObject {
         self.outputPipe = nil
         self.errorPipe = nil
         isRunning = false
+    }
+    
+    /// Stops the process handling the exit synchronously to ensure cleanup
+    /// Used when application is terminating
+    func stopBlocking() {
+        // Safe to read just the process reference, but need to be careful with other state
+        // Since we are shutting down, strict isolation is less critical than ensuring the process dies
+        guard let process = process, process.isRunning else { return }
+        
+        process.terminate()
+        
+        // Wait up to 2 seconds for clean exit (proxy cleanup)
+        let dispatchGroup = DispatchGroup()
+        dispatchGroup.enter()
+        
+        DispatchQueue.global().async {
+            process.waitUntilExit()
+            dispatchGroup.leave()
+        }
+        
+        _ = dispatchGroup.wait(timeout: .now() + 2.0)
+        
+        self.process = nil
+        self.isRunning = false
     }
     
     /// Clear all logs

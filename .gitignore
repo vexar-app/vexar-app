@@ -31,4 +31,12 @@ Resources
 
 # Secrets & Config
 GoogleService-Info.plist
+Vexar/Resources/GoogleService-Info.plist
 WebDashboard/js/app.js   # Contains Firebase Config (Optional: If you want to hide the dashboard config too)
+
+# Release Build Artifacts
+Release/
+build_temp/
+*.dmg
+*.zip
+build.log

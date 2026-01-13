@@ -139,6 +139,11 @@ struct MenuBarView: View {
                             .background(Color.white.opacity(0.1))
                         
                         Button {
+                            // Close the menu bar popover immediately
+                            NSApplication.shared.windows.forEach { window in
+                                // Only close the standard windows, not the one we are about to create (though it doesn't exist yet)
+                                window.close()
+                            }
                             NSApplication.shared.terminate(nil)
                         } label: {
                             VStack(spacing: 4) {

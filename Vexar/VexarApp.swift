@@ -1,14 +1,20 @@
 import SwiftUI
 import ServiceManagement
 import UserNotifications
+import FirebaseCore
 
 @main
 struct VexarApp: App {
-    @StateObject private var appState = AppState()
+    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    @StateObject private var appState = AppState.shared
     @StateObject private var homebrewManager = HomebrewManager()
     @State private var showOnboarding = false
     
     init() {
+        // Set default values (Opt-out model)
+        UserDefaults.standard.register(defaults: ["isAnalyticsEnabled": true])
+        
+        FirebaseApp.configure()
         requestNotificationPermission()
     }
 
@@ -19,6 +25,7 @@ struct VexarApp: App {
                 .environmentObject(homebrewManager)
                 .onAppear {
                     sendLaunchNotification()
+                    TelemetryManager.shared.sendEvent(eventName: "app_launched")
                 }
         } label: {
             HStack(spacing: 4) {
@@ -45,6 +52,76 @@ struct VexarApp: App {
         
         let request = UNNotificationRequest(identifier: "launch_notification", content: content, trigger: nil)
         UNUserNotificationCenter.current().add(request)
+    }
+}
+
+// MARK: - App Delegate
+class AppDelegate: NSObject, NSApplicationDelegate {
+    var quittingWindow: NSWindow?
+    var isCleaningUp = false
+    
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        if isCleaningUp {
+            return .terminateNow
+        }
+        
+        // 1. Show Quitting UI
+        showQuittingWindow()
+        
+        // 2. Start Cleanup
+        isCleaningUp = true
+        Task {
+            await cleanup()
+            
+            // 3. Continue Termination after a brief delay for UX
+            try? await Task.sleep(nanoseconds: 1 * 1_000_000_000) // 1s delay
+            await MainActor.run {
+                sender.terminate(self)
+            }
+        }
+        
+        return .terminateCancel
+    }
+    
+    private func showQuittingWindow() {
+        let window = NSWindow(
+            contentRect: NSRect(x: 0, y: 0, width: 300, height: 250),
+            styleMask: [.borderless],
+            backing: .buffered,
+            defer: false
+        )
+        window.center()
+        window.level = .floating
+        window.backgroundColor = .clear
+        window.isOpaque = false
+        window.hasShadow = true
+        
+        let hostingView = NSHostingView(rootView: QuittingView())
+        window.contentView = hostingView
+        
+        window.makeKeyAndOrderFront(nil)
+        self.quittingWindow = window
+    }
+    
+    @MainActor
+    private func cleanup() async {
+        // Step 1
+        withAnimation { AppState.shared.quittingStatus = "Bağlantılar kontrol ediliyor..." }
+        try? await Task.sleep(nanoseconds: 500_000_000) // 0.5s
+        
+        // Step 2
+        withAnimation { AppState.shared.quittingStatus = "SpoofDPI servisi durduruluyor..." }
+        AppState.shared.processManager.stopBlocking()
+        try? await Task.sleep(nanoseconds: 800_000_000) // 0.8s
+        
+        // Step 3
+        withAnimation { AppState.shared.quittingStatus = "Geçici dosyalar temizleniyor..." }
+        try? await Task.sleep(nanoseconds: 800_000_000) // 0.8s
+        
+        // Step 4
+        TelemetryManager.shared.sendEvent(eventName: "app_quit")
+        withAnimation { AppState.shared.quittingStatus = "Hoşçakalın! 👋" }
+        try? await Task.sleep(nanoseconds: 500_000_000) // 0.5s
     }
 }
 
