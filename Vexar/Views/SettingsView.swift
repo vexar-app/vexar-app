@@ -623,6 +623,39 @@ struct SettingsView: View {
                                         )
                                     }
                                     .buttonStyle(ScaleButtonStyle())
+                                    
+                                    // Patreon Support Button
+                                    Button {
+                                        if let url = URL(string: "https://www.patreon.com/c/ConsolAktif") {
+                                            NSWorkspace.shared.open(url)
+                                        }
+                                    } label: {
+                                        HStack(spacing: 8) {
+                                            Image(systemName: "cup.and.saucer.fill")
+                                                .font(.system(size: 16))
+                                            Text("Bir Kahve Ismarla ☕")
+                                                .font(.system(size: 13, weight: .bold))
+                                        }
+                                        .foregroundColor(.white)
+                                        .frame(maxWidth: .infinity)
+                                        .padding(.vertical, 12)
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 12)
+                                                .fill(
+                                                    LinearGradient(
+                                                        colors: [Color(red: 1.0, green: 0.4, blue: 0.2), Color(red: 0.9, green: 0.3, blue: 0.1)],
+                                                        startPoint: .topLeading,
+                                                        endPoint: .bottomTrailing
+                                                    )
+                                                )
+                                                .shadow(color: .orange.opacity(0.4), radius: 5, y: 2)
+                                        )
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 12)
+                                                .stroke(.white.opacity(0.2), lineWidth: 1)
+                                        )
+                                    }
+                                    .buttonStyle(ScaleButtonStyle())
                                 }
                                 .padding(16)
                                 .background(Color.black.opacity(0.2))

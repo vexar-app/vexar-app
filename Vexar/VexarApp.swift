@@ -290,21 +290,21 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private func cleanup() async {
         // Step 1
         withAnimation { AppState.shared.quittingStatus = String(localized: "status_cleaning") }
-        try? await Task.sleep(nanoseconds: 200_000_000) // 0.2s
+        try? await Task.sleep(nanoseconds: 100_000_000) // 0.1s
         
         // Step 2
         withAnimation { AppState.shared.quittingStatus = String(localized: "status_stopping_service") }
         AppState.shared.processManager.stopBlocking()
-        try? await Task.sleep(nanoseconds: 400_000_000) // 0.4s
+        try? await Task.sleep(nanoseconds: 200_000_000) // 0.2s
         
         // Step 3
         withAnimation { AppState.shared.quittingStatus = String(localized: "status_cleanup_temp") }
-        try? await Task.sleep(nanoseconds: 400_000_000) // 0.4s
+        try? await Task.sleep(nanoseconds: 150_000_000) // 0.15s
         
         // Step 4
         TelemetryManager.shared.sendEvent(eventName: "app_quit")
         withAnimation { AppState.shared.quittingStatus = String(localized: "status_goodbye") }
-        try? await Task.sleep(nanoseconds: 300_000_000) // 0.3s
+        try? await Task.sleep(nanoseconds: 150_000_000) // 0.15s
     }
 }
 
