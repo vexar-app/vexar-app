@@ -153,10 +153,17 @@ final class AppState: ObservableObject {
         processManager.$isRunning
             .receive(on: DispatchQueue.main)
             .sink { [weak self] isRunning in
-                self?.isConnected = isRunning
+                guard let self = self else { return }
+                
+                let wasConnected = self.isConnected
+                self.isConnected = isRunning
+                
                 // If stopped unexpectedly, isConnecting should also be false
                 if !isRunning {
-                    self?.isConnecting = false
+                    self.isConnecting = false
+                } else if !wasConnected && isRunning {
+                    // Connection just succeeded! Track it
+                    self.trackConnectionSuccess()
                 }
             }
             .store(in: &cancellables)
@@ -201,6 +208,23 @@ final class AppState: ObservableObject {
         processManager.stop()
         userInitiatedDisconnect = true
         addLog("🔌 Disconnected")
+    }
+    
+    private func trackConnectionSuccess() {
+        // Determine which DNS was used
+        var dnsName = "Unknown"
+        
+        if isAutoDNS {
+            if let best = dnsManager.bestServer {
+                dnsName = best.name
+            }
+        } else {
+            if let server = dnsManager.servers.first(where: { $0.id == selectedDNSID }) {
+                dnsName = server.name
+            }
+        }
+        
+        TelemetryManager.shared.trackConnectionSuccess(dnsName: dnsName)
     }
     
     func clearLogs() {

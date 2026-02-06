@@ -583,9 +583,9 @@ struct SettingsView: View {
                                 Button {
                                     withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
                                         appState.isAnalyticsEnabled.toggle()
-                                        if appState.isAnalyticsEnabled {
-                                            TelemetryManager.shared.sendEvent(eventName: "analytics_opt_in")
-                                        }
+                                        
+                                        // Sync privacy settings to Firestore
+                                        TelemetryManager.shared.syncPrivacySettings(isEnabled: appState.isAnalyticsEnabled)
                                     }
                                 } label: {
                                     ZStack {

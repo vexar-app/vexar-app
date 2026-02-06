@@ -170,7 +170,10 @@ struct UninstallingView: View {
             if step == .askDiscord {
                 if remove {
                     await MainActor.run { statusMessage = String(localized: "uninstall_removing_discord") }
-                    _ = await homebrewManager.uninstallDiscord()
+                    let success = await homebrewManager.uninstallDiscord()
+                    TelemetryManager.shared.trackUninstallAction(component: "discord", success: success)
+                } else {
+                    TelemetryManager.shared.trackUninstallAction(component: "discord", success: false)
                 }
                 
                 await MainActor.run {
@@ -183,7 +186,10 @@ struct UninstallingView: View {
                 if remove {
                     await MainActor.run { statusMessage = String(localized: "uninstall_running_homebrew") }
                     homebrewManager.uninstallHomebrew()
+                    TelemetryManager.shared.trackUninstallAction(component: "homebrew", success: true)
                     try? await Task.sleep(nanoseconds: 3 * 1_000_000_000)
+                } else {
+                    TelemetryManager.shared.trackUninstallAction(component: "homebrew", success: false)
                 }
                 
                 await MainActor.run {
@@ -192,6 +198,9 @@ struct UninstallingView: View {
                         statusMessage = String(localized: "uninstall_final")
                     }
                 }
+                
+                // Track app deletion
+                TelemetryManager.shared.trackUninstallAction(component: "app", success: true)
                 
                 try? await Task.sleep(nanoseconds: 2 * 1_000_000_000)
                 homebrewManager.selfDestruct()

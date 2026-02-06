@@ -23,7 +23,10 @@ struct VexarApp: App {
                 .environmentObject(homebrewManager)
                 .onAppear {
                     sendLaunchNotification()
-                    TelemetryManager.shared.sendEvent(eventName: "app_launched")
+                    TelemetryManager.shared.trackAppLaunch()
+                    
+                    // Collect device info on first launch only
+                    TelemetryManager.shared.collectDeviceInfo()
                 }
         } label: {
             HStack(spacing: 4) {
@@ -302,7 +305,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         try? await Task.sleep(nanoseconds: 150_000_000) // 0.15s
         
         // Step 4
-        TelemetryManager.shared.sendEvent(eventName: "app_quit")
         withAnimation { AppState.shared.quittingStatus = String(localized: "status_goodbye") }
         try? await Task.sleep(nanoseconds: 150_000_000) // 0.15s
     }

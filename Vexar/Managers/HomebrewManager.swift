@@ -177,7 +177,7 @@ final class HomebrewManager: ObservableObject {
                     installProgress = String(localized: "install_complete")
                     try? await Task.sleep(nanoseconds: 1 * 1_000_000_000)
                     isInstalling = false
-                    TelemetryManager.shared.sendEvent(eventName: "install_spoofdpi", parameters: ["status": "success", "method": "automated"])
+                    TelemetryManager.shared.trackOnboardingStep(component: "spoofdpi", success: true)
                     
                     // Notify other managers (e.g. Main Window) to refresh
                     DispatchQueue.main.async {
@@ -195,7 +195,7 @@ final class HomebrewManager: ObservableObject {
             print("[Vexar] Error: \(error)")
             installError = String(localized: "manual_install_instruction")
             isInstalling = false
-            TelemetryManager.shared.sendEvent(eventName: "install_spoofdpi", parameters: ["status": "failed", "error": error.localizedDescription])
+            TelemetryManager.shared.trackOnboardingStep(component: "spoofdpi", success: false, errorMessage: error.localizedDescription)
             return false
         }
     }
@@ -250,7 +250,7 @@ final class HomebrewManager: ObservableObject {
                     installProgress = "Discord başarıyla kuruldu!"
                     try? await Task.sleep(nanoseconds: 1 * 1_000_000_000)
                     isInstalling = false
-                    TelemetryManager.shared.sendEvent(eventName: "install_discord", parameters: ["status": "success"])
+                    TelemetryManager.shared.trackOnboardingStep(component: "discord", success: true)
                     
                     // Notify other managers (e.g. Main Window) to refresh
                     DispatchQueue.main.async {
@@ -267,7 +267,7 @@ final class HomebrewManager: ObservableObject {
             print("[Vexar] Error: \(error)")
             installError = "Komut panoya kopyalandı.\nTerminal'i açıp yapıştırın: ⌘V"
             isInstalling = false
-            TelemetryManager.shared.sendEvent(eventName: "install_discord", parameters: ["status": "failed", "error": error.localizedDescription])
+            TelemetryManager.shared.trackOnboardingStep(component: "discord", success: false, errorMessage: error.localizedDescription)
             return false
         }
     }
@@ -313,6 +313,7 @@ final class HomebrewManager: ObservableObject {
                     installProgress = "Homebrew başarıyla kuruldu!"
                     try? await Task.sleep(nanoseconds: 1 * 1_000_000_000)
                     isInstalling = false
+                    TelemetryManager.shared.trackOnboardingStep(component: "homebrew", success: true)
                     return
                 }
             }
@@ -351,7 +352,7 @@ final class HomebrewManager: ObservableObject {
             process.waitUntilExit()
             
             checkInstallations()
-            TelemetryManager.shared.sendEvent(eventName: "uninstall_spoofdpi", parameters: ["status": "success"])
+            TelemetryManager.shared.trackUninstallAction(component: "spoofdpi", success: true)
             return true
         } catch {
             print("[Vexar] Failed to uninstall SpoofDPI: \(error)")

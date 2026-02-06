@@ -72,7 +72,6 @@ class UpdateManager: ObservableObject {
                 }
                 
                 self.isUpdateAvailable = true
-                TelemetryManager.shared.sendEvent(eventName: "update_available", parameters: ["version": release.tagName, "current": currentVersion])
             }
         } catch let error as URLError {
             switch error.code {
